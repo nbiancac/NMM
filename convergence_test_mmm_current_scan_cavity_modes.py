@@ -15,9 +15,9 @@ from scipy.constants import mu_0
 plt.close('all')
 beam = fields.beam() # initialize beam parameters
 
-P_vec = np.arange(1, 55, 2, dtype=int)
-S_max = 15
-R_max = 15
+P_max = 9
+S_max = 1
+R_vec = np.arange(1, 10, 1, dtype=int)
 
 Np = 100
 
@@ -27,17 +27,19 @@ plt.close('all')
 beam = fields.beam(beta=0.9999)
 beam.Q = 1
 
-sim = fields.simulation(index_max_p=1, index_max_r=R_max, index_max_s = S_max)
+sim = fields.simulation(index_max_p=P_max, index_max_r=np.max(R_vec), index_max_s = S_max)
 mesh = fields.mesh(sim, Np=Np)
 
 left = {'direction': -1,
         'zmatch': 0,
-        'ev': []
+        'ev': [],
+        'ev_all': [],
         }
 
 right = {'direction': 1,
          'zmatch': sim.L,
-         'ev': []
+         'ev': [],
+         'ev_all': []
          }
 
 print('Computing eigenmode fields at boundaries (only once).')
@@ -49,13 +51,17 @@ for scenario in [left, right]:
             sim, sim.ix_pairs_n[ix_n][0], sim.ix_pairs_n[ix_n][1])
         cav_proj = fields.projectors(mesh)
         cav_proj.interpolate_at_boundary(cavity, mesh, zmatch)
-        scenario['ev'].append(cav_proj)
+        scenario['ev_all'].append(cav_proj)
 
 Z_conv = [];
-for iP in P_vec:
+for iR in R_vec:
         Zout = []
         fout = []
-        sim = fields.simulation(index_max_p=iP, index_max_r=R_max, index_max_s = S_max)
+        sim = fields.simulation(index_max_p=P_max, index_max_r=iR, index_max_s = S_max)
+
+        for scenario in [left, right]:
+            scenario['ev'] = scenario['ev_all'][0:iR]
+        
 
         print(f"Modes in the pipes {sim.index_max_p}.\
         \nModes in the cavity {sim.index_max_n}.\
@@ -257,8 +263,9 @@ for iP in P_vec:
 
 Z_conv = np.array(Z_conv).flatten()
 plt.figure()
-plt.plot(P_vec, Z_conv.real)
+plt.plot(R_vec, Z_conv.real)
 plt.legend(['real', 'imag'])
-plt.title('Beam current: P scan, fixed N = '+str(max(sim.index_max_n))+', Np = '+str(Np))
+plt.title('Beam current: P scan, fixed P = '+str(max(sim.index_max_p))+', Np = '+str(Np))
+plt.xlabel('Cavity modes')
 plt.ylim(0,120)
 plt.tight_layout()  
