@@ -15,7 +15,6 @@ def cross_z(x, y):
     Returns
     -------
     x, y vectors after rotation.
-
     '''    
     return y, -x
 
@@ -38,10 +37,10 @@ class mesh:
     def __init__(self, sim, Np=10): # constructor
         
         self.Np = Np
-        #self.xi = np.linspace(-1*sim.b, 1*sim.b, self.Np, endpoint=True)
-        pipe_mesh = np.linspace(-1*sim.b, 1*sim.b, self.Np, endpoint=True)
-        beam_mesh = np.linspace(-2*sim.rb, 2*sim.rb, self.Np, endpoint=True)
-        self.xi = np.sort(np.unique(np.concatenate((beam_mesh, pipe_mesh))))
+        self.xi = np.linspace(-1*sim.b, 1*sim.b, self.Np, endpoint=True)
+        # pipe_mesh = np.linspace(-1*sim.b, 1*sim.b, self.Np, endpoint=True)
+        # beam_mesh = np.linspace(-2*sim.rb, 2*sim.rb, self.Np, endpoint=True)
+        # self.xi = np.sort(np.unique(np.concatenate((beam_mesh, pipe_mesh))))
         self.yi =self.xi
         self.Xi, self.Yi = np.meshgrid(self.xi,self.yi)
         Wi = self.Xi +1j*self.Yi
@@ -69,23 +68,26 @@ class mesh3D:
     
 class simulation:
 
-    def __init__(self, frequency = 2e9, index_max_p = 3, index_max_s = 3): # constructor
+    def __init__(self, frequency = 2e9, index_max_p = 3, index_max_r = 3, index_max_s = 3): # constructor
 
         import itertools
         
         self.f = frequency
         self.index_max_p = index_max_p
         self.index_max_s = index_max_s
+        self.index_max_r = index_max_r
         self.ix_p = np.arange(self.index_max_p)
-        self.ix_s = np.arange(self.index_max_s)        
+        self.ix_s = np.arange(self.index_max_s)
+        self.ix_r = np.arange(self.index_max_r)        
         self.b = 5e-2
-        self.t = 5e-6
+        self.t = 5e-2
         self.L = 1e-2
         self.d = self.t + self.b
-        self.ix_pairs_n = list(itertools.product(np.arange(self.index_max_p),np.arange(self.index_max_s)))
+        self.ix_pairs_n = list(itertools.product(np.arange(self.index_max_r),np.arange(self.index_max_s)))
         self.index_max_n = len(self.ix_pairs_n)
         self.ix_n = np.arange(self.index_max_n)     
-        self.rb = 0.005
+        self.rb = 0.0
+        self.sigma = 1e-20
 
     
 class beam:
@@ -162,7 +164,7 @@ class source_ring_top:
         alpha_b = b * omega0 / v
         Q = beam.Q 
         x = alpha_b / gamma    
-        rb = 0.003
+        rb = sim.rb
         s = rb * alpha_b / b / gamma
         F0 = lambda r, phi, z: kn(0, r * alpha_b / b / gamma) -  i0(r * alpha_b / b / gamma) * kn(0,x) / i0( x)
         dF0 = lambda r, phi, z: - kn(1, r * alpha_b / b / gamma) -  i1(r * alpha_b / b / gamma) * kn(0,x) / i0( x)
@@ -211,7 +213,7 @@ class source_ring_bottom:
         alpha_b = b * omega0 / v
         Q = beam.Q 
         x = alpha_b / gamma    
-        rb = 0.003
+        rb = sim.rb
         s = rb * alpha_b / b / gamma
         F0 = lambda r, phi, z: kn(0, s) -  i0(s) * kn(0,x) / i0( x)
         Y0 = np.sqrt(epsilon_0/mu_0)
@@ -572,13 +574,13 @@ class pipe:
 class cavity:
     """
     sim: object gathering the simulation parameters (frequency, number of modes, etc...)
-    index_p: modal index
+    index_r, index_s: modal index
     direction: -1 to go to left, +1 to go to right.
     """    
-    def __init__(self, sim, index_p, index_s): # constructor
+    def __init__(self, sim, index_r, index_s): # constructor
         
         
-        from scipy.constants import epsilon_0, mu_0
+        from scipy.constants import epsilon_0, mu_0, c
         from scipy.special import jn_zeros, jnp_zeros, jn
         
         d = sim.d
@@ -586,49 +588,60 @@ class cavity:
         f0 = sim.f
         omega0 = 2 * np.pi * f0
         
-        ix_p = index_p
-        Nmax_p = sim.index_max_p
+        ix_r = index_r
+        Nmax_r = sim.index_max_r
 
         ix_s = index_s
         Nmax_s = sim.index_max_s
         Y0 = np.sqrt(epsilon_0/mu_0)
         Z0 = 1/Y0
-        alpha_p = jn_zeros(0,Nmax_p)[ix_p]
-        beta_p = jnp_zeros(0,Nmax_p)[ix_p]
+        alpha_r = jn_zeros(0,Nmax_r)[ix_r]
+        beta_r = jnp_zeros(0,Nmax_r)[ix_r]
         k0 = omega0 * np.sqrt(epsilon_0 * mu_0) 
+        
+        sigma_c = sim.sigma
         alpha_0 = k0 * d + 1j*0
         s = np.arange(0,Nmax_s)[ix_s]
         alpha_s = s * np.pi * d / L
-        alpha_ps = np.sqrt(alpha_p**2 + alpha_s**2)
-        beta_ps = np.sqrt(beta_p**2 + alpha_s**2)
-        V_ps = d * np.sqrt(np.pi) * np.sqrt(L/epsilon_s(s)) * abs(jn(1, alpha_p)) * alpha_ps / alpha_p
-        V_E = np.sqrt(np.pi * L / epsilon_s(s))*abs(jn(1, alpha_p)) * alpha_ps
-        # V_H = np.sqrt(np.pi * L / epsilon_s(s))*abs(jn(0, beta_p)) * beta_ps
+        alpha_rs = np.sqrt(alpha_r**2 + alpha_s**2)
+        kn = alpha_rs / d
+        lambda0 = 2*np.pi/kn
+        self.omega_rs = kn * c
+        deltas = np.sqrt(2/self.omega_rs/mu_0/sigma_c)
+        self.deltas = deltas
+        
+        # beta_rs = np.sqrt(beta_r**2 + alpha_s**2)
+        V_rs = d * np.sqrt(np.pi) * np.sqrt(L/epsilon_s(s)) * abs(jn(1, alpha_r)) * alpha_rs / alpha_r
+        V_E = np.sqrt(np.pi * L / epsilon_s(s))*abs(jn(1, alpha_r)) * alpha_rs
+        # V_H = np.sqrt(np.pi * L / epsilon_s(s))*abs(jn(0, beta_r)) * beta_rs
 
         # cavity TM solenoidal, nu=0
-        self.Er = lambda r, phi, z: alpha_s * jn(1, r * alpha_p / d) / (alpha_p * V_ps) * np.sin(z * alpha_s / d)
+        self.Er = lambda r, phi, z: alpha_s * jn(1, r * alpha_r / d) / (alpha_r * V_rs) * np.sin(z * alpha_s / d)
         self.Ephi = lambda r, phi, z: 0
-        self.Ez = lambda r, phi, z:  jn(0, r * alpha_p / d) / (V_ps) * np.cos(z * alpha_s / d)
+        self.Ez = lambda r, phi, z:  jn(0, r * alpha_r / d) / (V_rs) * np.cos(z * alpha_s / d)
         
         self.Hr = lambda r, phi, z: 0
-        self.Hphi = lambda r, phi, z: alpha_ps * jn(1, r * alpha_p / d) / (alpha_p * V_ps) * np.cos(z * alpha_s / d)
+        self.Hphi = lambda r, phi, z: alpha_rs * jn(1, r * alpha_r / d) / (alpha_r * V_rs) * np.cos(z * alpha_s / d)
         self.Hz = lambda r, phi, z: 0
 
         # cavity E irrotational, nu=0
-        self.Fr = lambda r, phi, z: - alpha_p * jn(1, r * alpha_p / d) / (d * V_E) * np.sin(z * alpha_s / d)
+        self.Fr = lambda r, phi, z: - alpha_r * jn(1, r * alpha_r / d) / (d * V_E) * np.sin(z * alpha_s / d)
         self.Fphi = lambda r, phi, z: 0
-        self.Fz = lambda r, phi, z:   alpha_s * jn(0, r * alpha_p / d) / (d * V_E) * np.cos(z * alpha_s / d)
+        self.Fz = lambda r, phi, z:   alpha_s * jn(0, r * alpha_r / d) / (d * V_E) * np.cos(z * alpha_s / d)
 
         # cavity H irrotational, nu=0
-        # self.Gr = lambda r, phi, z: - beta_p * jn(1, r * beta_p / d) / (d * V_H) * np.cos(z * alpha_s / d)
+        # self.Gr = lambda r, phi, z: - beta_r * jn(1, r * beta_r / d) / (d * V_H) * np.cos(z * alpha_s / d)
         # self.Gphi = lambda r, phi, z: 0
-        # self.Gz = lambda r, phi, z: - alpha_s * jn(0, r * beta_p / d) / (d * V_H) * np.sin(z * alpha_s / d)
+        # self.Gz = lambda r, phi, z: - alpha_s * jn(0, r * beta_r / d) / (d * V_H) * np.sin(z * alpha_s / d)
         self.Jz = lambda r, phi, z:  0
         self.box = d
-        self.k_0 = alpha_0 / d
-        self.k_ps = alpha_ps / d
         self.Z0 = Z0
         
+        self.Q = lambda0/deltas * (alpha_rs / (2*np.pi * (1 + epsilon_s(s) * d / L)))
+        #self.k_rs = kn * (1 + (-1 + 1j)/(2*self.Q)*np.sqrt(self.omega_rs/omega0))
+        self.k_rs = kn 
+        #self.k_0 = alpha_0 / d * (1 - (-1 + 1j)/(2*self.Q))
+        self.k_0 = alpha_0 / d
         self.rb = 0
         
 class projectors:
