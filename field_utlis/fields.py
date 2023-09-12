@@ -89,6 +89,22 @@ class simulation:
         self.rb = 0.0
         self.sigma = 1e-20
 
+class simulation_CST:
+
+    def __init__(self, frequency = 2e9, index_max_p = 3, index_max_mode = 3): # constructor
+        
+        self.f = frequency
+        self.index_max_p = index_max_p
+        self.index_max_mode = index_max_mode
+        self.ix_p = np.arange(self.index_max_p)
+        self.ix_mode = np.arange(self.index_max_mode)
+        self.b = 5e-2
+        self.t = 5e-2
+        self.L = 1e-2
+        self.d = self.t + self.b
+        self.rb = 0.0
+        self.sigma = 1e-20
+
     
 class beam:
 
@@ -571,6 +587,98 @@ class pipe:
         self.jalpha_p = abs(jn(1,alpha_p))
         self.rb = 0
 
+class cavity_project:
+    
+    def __init__(self, mode_num, mesh, radius_CST=5, stepsize_CST=0.1, selected_modes = True): # constructor
+        from scipy.constants import epsilon_0 as eps_0
+        from scipy.constants import mu_0
+        from scipy.interpolate import RegularGridInterpolator
+        
+        # if selected_modes:
+        #     mode_num = None
+        #     if index_p == 0:
+        #         mode_num = 1
+        #     elif index_p == 1:
+        #         mode_num = 6
+        #     elif index_p == 2:
+        #         mode_num = 15
+        #     elif index_p == 3:
+        #         mode_num = 30
+        #     elif index_p == 4:
+        #         mode_num = 51
+        #     elif index_p == 5:
+        #         mode_num = 74
+        #     elif index_p == 6:
+        #         mode_num = 105
+        #     elif index_p == 7:
+        #         mode_num = 140
+        #     elif index_p == 8:
+        #         mode_num = 175
+        # else:
+            
+        E_dati = np.loadtxt("Mode {}.txt".format(mode_num), skiprows=2)
+        Ex = np.transpose(E_dati[:,3].reshape(np.rint((2*radius_CST+stepsize_CST)/stepsize_CST).astype(int),np.rint((2*radius_CST+stepsize_CST)/stepsize_CST).astype(int))/np.sqrt(2/eps_0))
+        Ey = np.transpose(E_dati[:,5].reshape(np.rint((2*radius_CST+stepsize_CST)/stepsize_CST).astype(int),np.rint((2*radius_CST+stepsize_CST)/stepsize_CST).astype(int))/np.sqrt(2/eps_0))
+        Ez = np.transpose(E_dati[:,7].reshape(np.rint((2*radius_CST+stepsize_CST)/stepsize_CST).astype(int),np.rint((2*radius_CST+stepsize_CST)/stepsize_CST).astype(int))/np.sqrt(2/eps_0))
+        x = E_dati[:np.rint((2*radius_CST+stepsize_CST)/stepsize_CST).astype(int), 0]
+        y = E_dati[::np.rint((2*radius_CST+stepsize_CST)/stepsize_CST).astype(int), 1]
+        H_dati = np.loadtxt("H_Mode {}.txt".format(mode_num), skiprows=2)
+        Hx = np.transpose(H_dati[:,4].reshape(np.rint((2*radius_CST+stepsize_CST)/stepsize_CST).astype(int),np.rint((2*radius_CST+stepsize_CST)/stepsize_CST).astype(int))/np.sqrt(2/mu_0))
+        Hy = np.transpose(H_dati[:,6].reshape(np.rint((2*radius_CST+stepsize_CST)/stepsize_CST).astype(int),np.rint((2*radius_CST+stepsize_CST)/stepsize_CST).astype(int))/np.sqrt(2/mu_0))
+        Hz = np.transpose(H_dati[:,8].reshape(np.rint((2*radius_CST+stepsize_CST)/stepsize_CST).astype(int),np.rint((2*radius_CST+stepsize_CST)/stepsize_CST).astype(int))/np.sqrt(2/mu_0))
+        
+        interp_func_Ex = RegularGridInterpolator((x*1e-2, y*1e-2), Ex)
+        interp_func_Ey = RegularGridInterpolator((x*1e-2, y*1e-2), Ey)
+        interp_func_Ez = RegularGridInterpolator((x*1e-2, y*1e-2), Ez)
+        
+        interp_func_Hx = RegularGridInterpolator((x*1e-2, y*1e-2), Hx)
+        interp_func_Hy = RegularGridInterpolator((x*1e-2, y*1e-2), Hy)
+        interp_func_Hz = RegularGridInterpolator((x*1e-2, y*1e-2), Hz)
+
+        # Calcola i valori interpolati su una griglia regolare
+        xx, yy = np.meshgrid(mesh.xi, mesh.yi)
+        points = np.array([xx.flatten(), yy.flatten()]).T
+        
+        self.Ex = interp_func_Ex(points).reshape(xx.shape)
+        self.Ey = interp_func_Ey(points).reshape(xx.shape)
+        self.Ez = interp_func_Ez(points).reshape(xx.shape)
+        
+        self.Hx = interp_func_Hx(points).reshape(xx.shape) 
+        self.Hy = interp_func_Hy(points).reshape(xx.shape)
+        self.Hz = interp_func_Hz(points).reshape(xx.shape)
+
+class cavity_project_on_axis:
+    
+    def __init__(self, mode_num, mesh, selected_modes = True): # constructor
+        from scipy.constants import epsilon_0 as eps_0
+
+        # if selected_modes:
+        #     mode_num = None
+        #     if index_p == 0:
+        #         mode_num = 1
+        #     elif index_p == 1:
+        #         mode_num = 6
+        #     elif index_p == 2:
+        #         mode_num = 15
+        #     elif index_p == 3:
+        #         mode_num = 30
+        #     elif index_p == 4:
+        #         mode_num = 51
+        #     elif index_p == 5:
+        #         mode_num = 74
+        #     elif index_p == 6:
+        #         mode_num = 105
+        #     elif index_p == 7:
+        #         mode_num = 140
+        #     elif index_p == 8:
+        #         mode_num = 175
+        # else:
+        
+        E_dati_on_axis = np.loadtxt("Mode_on_axis {}.txt".format(mode_num), skiprows=2)
+        self.Ez = E_dati_on_axis[:,7]/np.sqrt(2/eps_0)
+        self.Z = E_dati_on_axis[:, 2]
+        self.Fz = np.zeros(self.Ez.size)
+
 class cavity:
     """
     sim: object gathering the simulation parameters (frequency, number of modes, etc...)
@@ -643,6 +751,44 @@ class cavity:
         #self.k_0 = alpha_0 / d * (1 - (-1 + 1j)/(2*self.Q))
         self.k_0 = alpha_0 / d
         self.rb = 0
+
+class cavity_CST:
+    """
+    sim: object gathering the simulation parameters (frequency, number of modes, etc...)
+    index_p: modal index
+    direction: -1 to go to left, +1 to go to right.
+    """    
+    def __init__(self, sim, mode_num): # constructor
+        
+        
+        from scipy.constants import epsilon_0, mu_0, c
+        
+        d = sim.d
+        f0 = sim.f
+        omega0 = 2 * np.pi * f0
+        
+
+        Y0 = np.sqrt(epsilon_0/mu_0)
+        Z0 = 1/Y0
+        
+        
+        k0 = omega0 * np.sqrt(epsilon_0 * mu_0) 
+        alpha_0 = k0 * d + 1j*0
+        
+        # f_CST = np.loadtxt("Frequency {}.txt".format(mode_num), skiprows=2)
+        f_CST = np.loadtxt("Frequency.txt", skiprows=2)[mode_num-1,1]
+
+        k_rs = f_CST * 1e9 * 2 * np.pi * np.sqrt(epsilon_0 * mu_0)
+        omega_rs = k_rs * c
+
+        # self.Jz = lambda r, phi, z:  0
+        # self.box = d
+        self.k_0 = alpha_0 / d
+        self.k_rs = k_rs
+        self.omega_rs = omega_rs
+        self.Z0 = Z0
+        
+        # self.rb = 0
         
 class projectors:
 
