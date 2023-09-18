@@ -589,43 +589,28 @@ class pipe:
 
 class cavity_project:
     
-    def __init__(self, mode_num, mesh, radius_CST=5, stepsize_CST=0.1, selected_modes = True): # constructor
+    def __init__(self, mode_num, mesh, zmatch, radius_CST=5, stepsize_CST=0.1): # constructor
         from scipy.constants import epsilon_0 as eps_0
         from scipy.constants import mu_0
         from scipy.interpolate import RegularGridInterpolator
         
-        # if selected_modes:
-        #     mode_num = None
-        #     if index_p == 0:
-        #         mode_num = 1
-        #     elif index_p == 1:
-        #         mode_num = 6
-        #     elif index_p == 2:
-        #         mode_num = 15
-        #     elif index_p == 3:
-        #         mode_num = 30
-        #     elif index_p == 4:
-        #         mode_num = 51
-        #     elif index_p == 5:
-        #         mode_num = 74
-        #     elif index_p == 6:
-        #         mode_num = 105
-        #     elif index_p == 7:
-        #         mode_num = 140
-        #     elif index_p == 8:
-        #         mode_num = 175
-        # else:
+        if zmatch == 0:
+            E_dati = np.loadtxt("E_Mode_left {}.txt".format(mode_num), skiprows=2)
+            H_dati = np.loadtxt("H_Mode_left {}.txt".format(mode_num), skiprows=2)
+        else:
+            E_dati = np.loadtxt("E_Mode_right {}.txt".format(mode_num), skiprows=2)
+            H_dati = np.loadtxt("H_Mode_right {}.txt".format(mode_num), skiprows=2)
             
-        E_dati = np.loadtxt("Mode {}.txt".format(mode_num), skiprows=2)
         Ex = np.transpose(E_dati[:,3].reshape(np.rint((2*radius_CST+stepsize_CST)/stepsize_CST).astype(int),np.rint((2*radius_CST+stepsize_CST)/stepsize_CST).astype(int))/np.sqrt(2/eps_0))
         Ey = np.transpose(E_dati[:,5].reshape(np.rint((2*radius_CST+stepsize_CST)/stepsize_CST).astype(int),np.rint((2*radius_CST+stepsize_CST)/stepsize_CST).astype(int))/np.sqrt(2/eps_0))
         Ez = np.transpose(E_dati[:,7].reshape(np.rint((2*radius_CST+stepsize_CST)/stepsize_CST).astype(int),np.rint((2*radius_CST+stepsize_CST)/stepsize_CST).astype(int))/np.sqrt(2/eps_0))
         x = E_dati[:np.rint((2*radius_CST+stepsize_CST)/stepsize_CST).astype(int), 0]
         y = E_dati[::np.rint((2*radius_CST+stepsize_CST)/stepsize_CST).astype(int), 1]
-        H_dati = np.loadtxt("H_Mode {}.txt".format(mode_num), skiprows=2)
+        
         Hx = np.transpose(H_dati[:,4].reshape(np.rint((2*radius_CST+stepsize_CST)/stepsize_CST).astype(int),np.rint((2*radius_CST+stepsize_CST)/stepsize_CST).astype(int))/np.sqrt(2/mu_0))
         Hy = np.transpose(H_dati[:,6].reshape(np.rint((2*radius_CST+stepsize_CST)/stepsize_CST).astype(int),np.rint((2*radius_CST+stepsize_CST)/stepsize_CST).astype(int))/np.sqrt(2/mu_0))
         Hz = np.transpose(H_dati[:,8].reshape(np.rint((2*radius_CST+stepsize_CST)/stepsize_CST).astype(int),np.rint((2*radius_CST+stepsize_CST)/stepsize_CST).astype(int))/np.sqrt(2/mu_0))
+    
         
         interp_func_Ex = RegularGridInterpolator((x*1e-2, y*1e-2), Ex)
         interp_func_Ey = RegularGridInterpolator((x*1e-2, y*1e-2), Ey)
@@ -649,30 +634,8 @@ class cavity_project:
 
 class cavity_project_on_axis:
     
-    def __init__(self, mode_num, mesh, selected_modes = True): # constructor
+    def __init__(self, mode_num, mesh): # constructor
         from scipy.constants import epsilon_0 as eps_0
-
-        # if selected_modes:
-        #     mode_num = None
-        #     if index_p == 0:
-        #         mode_num = 1
-        #     elif index_p == 1:
-        #         mode_num = 6
-        #     elif index_p == 2:
-        #         mode_num = 15
-        #     elif index_p == 3:
-        #         mode_num = 30
-        #     elif index_p == 4:
-        #         mode_num = 51
-        #     elif index_p == 5:
-        #         mode_num = 74
-        #     elif index_p == 6:
-        #         mode_num = 105
-        #     elif index_p == 7:
-        #         mode_num = 140
-        #     elif index_p == 8:
-        #         mode_num = 175
-        # else:
         
         E_dati_on_axis = np.loadtxt("Mode_on_axis {}.txt".format(mode_num), skiprows=2)
         self.Ez = E_dati_on_axis[:,7]/np.sqrt(2/eps_0)

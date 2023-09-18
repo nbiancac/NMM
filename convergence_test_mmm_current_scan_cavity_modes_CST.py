@@ -15,8 +15,8 @@ from scipy.constants import mu_0
 plt.close('all')
 beam = fields.beam() # initialize beam parameters
 
-P_max = 1
-mode_index = 185
+P_max = 20
+mode_index = 200
 Mode_vec = np.arange(1, mode_index, 1, dtype=int)
 Np = 51
 
@@ -48,7 +48,7 @@ for scenario in [left, right]:
     for ix_n in sim.ix_mode:
             cavity = fields.cavity_CST(sim, mode_num = ix_n + 1)
             cav_proj = fields.cavity_project(ix_n + 1, mesh)
-            scenario['ev'].append(cav_proj)
+            scenario['ev_all'].append(cav_proj)
 
 Z_conv = [];
 for iR in Mode_vec:
@@ -56,8 +56,8 @@ for iR in Mode_vec:
         fout = []
         sim = fields.simulation_CST(index_max_p=P_max, index_max_mode=iR)
 
-        # for scenario in [left, right]:
-        #     scenario['ev'] = scenario['ev_all'][0:iR]
+        for scenario in [left, right]:
+            scenario['ev'] = scenario['ev_all'][0:iR]
         
 
         print(f"Modes in the pipes {sim.index_max_p}.\

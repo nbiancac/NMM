@@ -15,11 +15,11 @@ from scipy.constants import mu_0
 plt.close('all')
 beam = fields.beam() # initialize beam parameters
 
-P_max = 51
+P_max = 50
 P_vec = np.arange(1, P_max, 1, dtype=int)
 # S_max = 15
 # R_max = 15
-mode_index = 200
+mode_index = 599
 
 Np = 51
 
@@ -48,7 +48,7 @@ for scenario in [left, right]:
     zmatch = scenario['zmatch']
     for ix_n in sim.ix_mode:
         cavity = fields.cavity_CST(sim, mode_num = ix_n + 1)
-        cav_proj = fields.cavity_project(ix_n + 1, mesh)
+        cav_proj = fields.cavity_project(ix_n + 1, mesh, zmatch)
         scenario['ev'].append(cav_proj)
 
 Z_conv = [];
