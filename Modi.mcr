@@ -16,10 +16,10 @@ Sub Main ()
     mode_numbers = Solver.AKSGetNumberOfModes
 
     For mode = 1 To mode_numbers
-        SelectTreeItem ("2D/3D Results\Modes\Mode" + Str(modo) + "\e")
+        SelectTreeItem ("2D/3D Results\Modes\Mode" + Str(mode) + "\e")
         With ASCIIExport
             .Reset
-            .FileName ("..\..\E_Mode_left" + Str(modo + Start_mode - 1) + ".txt")
+            .FileName ("..\..\E_Mode_left" + Str(mode + Start_mode - 1) + ".txt")
             .SetSubvolume(-Pipe_radius, Pipe_radius, -Pipe_radius, Pipe_radius, 0., 0.)
             .Mode("FixedWidth")
             .Step(0.1)
@@ -27,7 +27,7 @@ Sub Main ()
         End With
         With ASCIIExport
             .Reset
-            .FileName ("..\..\E_Mode_right" + Str(modo + Start_mode - 1) + ".txt")
+            .FileName ("..\..\E_Mode_right" + Str(mode + Start_mode - 1) + ".txt")
             .SetSubvolume(-Pipe_radius, Pipe_radius, -Pipe_radius, Pipe_radius, Length, Length)
             .Mode("FixedWidth")
             .Step(0.1)
@@ -35,16 +35,16 @@ Sub Main ()
         End With
         With ASCIIExport
             .Reset
-            .FileName ("..\..\Mode_on_axis" + Str(modo + Start_mode - 1) + ".txt")
+            .FileName ("..\..\Mode_on_axis" + Str(mode + Start_mode - 1) + ".txt")
             .SetSubvolume(0., 0., 0., 0., 0., Length)
             .Mode("FixedWidth")
             .Step(Length/Np)
             .Execute
         End With
-        SelectTreeItem ("2D/3D Results\Modes\Mode" + Str(modo) + "\h")
+        SelectTreeItem ("2D/3D Results\Modes\Mode" + Str(mode) + "\h")
         With ASCIIExport
             .Reset
-            .FileName ("..\..\H_Mode_left" + Str(modo + Start_mode - 1) + ".txt")
+            .FileName ("..\..\H_Mode_left" + Str(mode + Start_mode - 1) + ".txt")
             .SetSubvolume(-5., 5., -5., 5., 0., 0.)
             .Mode("FixedWidth")
             .Step(0.1)
@@ -52,7 +52,7 @@ Sub Main ()
         End With
 		With ASCIIExport
             .Reset
-            .FileName ("..\..\H_Mode_right" + Str(modo + Start_mode - 1) + ".txt")
+            .FileName ("..\..\H_Mode_right" + Str(mode + Start_mode - 1) + ".txt")
             .SetSubvolume(-5., 5., -5., 5., Length, Length)
             .Mode("FixedWidth")
             .Step(0.1)
