@@ -636,22 +636,11 @@ class cavity_project_on_axis:
     
     def __init__(self, mode_num, mesh): # constructor
         from scipy.constants import epsilon_0 as eps_0
-        from scipy.interpolate import interp1d
-      
         
         E_dati_on_axis = np.loadtxt("Mode_on_axis {}.txt".format(mode_num), skiprows=2)
-        Ez_CST = E_dati_on_axis[:,7]/np.sqrt(2/eps_0)
-        Z_CST = E_dati_on_axis[:, 2]*1e-2
-        self.Fz = np.zeros(mesh.Z.size)
-        # self.Fz = np.zeros(self.Ez.size)
-        
-        # Interpolazione
-        interpolated_function = interp1d(Z_CST, Ez_CST, kind='linear', fill_value='extrapolate')
-        
-        # Calcola i valori interpolati su mesh.Z
-        self.Ez = interpolated_function(mesh.Z)
-        
-        
+        self.Ez = E_dati_on_axis[:,7]/np.sqrt(2/eps_0)
+        self.Z = E_dati_on_axis[:, 2]
+        self.Fz = np.zeros(self.Ez.size)
 
 class cavity:
     """

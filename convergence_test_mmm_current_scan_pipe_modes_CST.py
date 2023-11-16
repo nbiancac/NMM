@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy.integrate import trapz
 from scipy.constants import mu_0
+import time
 
 plt.close('all')
 beam = fields.beam() # initialize beam parameters
@@ -19,7 +20,7 @@ P_max = 50
 P_vec = np.arange(1, P_max, 1, dtype=int)
 # S_max = 15
 # R_max = 15
-mode_index = 599
+mode_index = 10
 
 Np = 51
 
@@ -44,13 +45,18 @@ right = {'direction': 1,
 
 print('Computing eigenmode fields at boundaries (only once).')
 print(f'Number of eigenmodes: {len(sim.ix_mode)}')
+start_time_matrix = time.time()
 for scenario in [left, right]:
     zmatch = scenario['zmatch']
     for ix_n in sim.ix_mode:
         cavity = fields.cavity_CST(sim, mode_num = ix_n + 1)
         cav_proj = fields.cavity_project(ix_n + 1, mesh, zmatch)
         scenario['ev'].append(cav_proj)
+end_time_matrix = time.time()
+tempo_trascorso_matrix = end_time_matrix - start_time_matrix
+print(f"\nTempo impiegatoper costruzione matrice: {tempo_trascorso_matrix/60} minuti\n")
 
+start_time = time.time()
 Z_conv = [];
 for iP in P_vec:
         Zout = []
@@ -249,7 +255,13 @@ for iP in P_vec:
         Z_conv.append(Zout)
         print(Zout)
 
+end_time = time.time()
+tempo_trascorso = end_time - start_time
+print(f"\nTempo impiegato calcolo: {tempo_trascorso/60} minuti\n")
+
 Z_conv = np.array(Z_conv).flatten()
+# np.savetxt('Arrays/Z_conv_Pscan_CST'+str(mode_index)+'_Np'+str(Np)+'.txt', Z_conv, fmt='%.16f%+.16fj')
+
 plt.figure()
 plt.plot(P_vec, Z_conv.real)
 plt.legend(['real', 'imag'])
