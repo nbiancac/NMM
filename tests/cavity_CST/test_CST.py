@@ -26,7 +26,7 @@ P_max = 30
 Mode_vec = [10]
 
 sim = fields.simulation_CST(index_max_p = P_max, index_max_n = max(Mode_vec), Np = Np, \
-                        geometry = geometry, materials = materials, beam = beam, mesh = mesh)
+                        geometry = geometry, materials = materials, beam = beam, mesh = mesh, datadir = saveDir+'CST/')
 
 sim.integration='direct'
         
