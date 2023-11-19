@@ -716,7 +716,7 @@ class cavity_CST:
     index_p: modal index
     direction: -1 to go to left, +1 to go to right.
     """    
-    def __init__(self, sim, mode_num): # constructor
+    def __init__(self, sim, mode_num, datadir): # constructor
         
         
         from scipy.constants import epsilon_0, mu_0, c
@@ -732,7 +732,7 @@ class cavity_CST:
         k0 = omega0 * np.sqrt(epsilon_0 * mu_0) 
         alpha_0 = k0 * d + 1j*0
         
-        f_CST = np.loadtxt("Frequency.txt", skiprows=2)[mode_num-1,1]
+        f_CST = np.loadtxt(datadir+'Frequency.txt', skiprows=2)[mode_num-1,1]
         k_rs = f_CST * 1e9 * 2 * np.pi * np.sqrt(epsilon_0 * mu_0)
         omega_rs = k_rs * c
 
@@ -743,17 +743,17 @@ class cavity_CST:
 
 class cavity_project:
     
-    def __init__(self, mode_num, mesh, zmatch, radius_CST=5, stepsize_CST=0.1): # constructor
+    def __init__(self, mode_num, mesh, zmatch, radius_CST=5, stepsize_CST=0.1, datadir=''): # constructor
         from scipy.constants import epsilon_0 as eps_0
         from scipy.constants import mu_0
         from scipy.interpolate import RegularGridInterpolator
         
         if zmatch == 0:
-            E_dati = np.loadtxt("E_Mode_left_{}.txt".format(mode_num), skiprows=2)
-            H_dati = np.loadtxt("H_Mode_left_{}.txt".format(mode_num), skiprows=2)
+            E_dati = np.loadtxt(datadir+'E_Mode_left {}.txt'.format(mode_num), skiprows=2)
+            H_dati = np.loadtxt(datadir+'H_Mode_left {}.txt'.format(mode_num), skiprows=2)
         else:
-            E_dati = np.loadtxt("E_Mode_right_{}.txt".format(mode_num), skiprows=2)
-            H_dati = np.loadtxt("H_Mode_right_{}.txt".format(mode_num), skiprows=2)
+            E_dati = np.loadtxt(datadir+'E_Mode_right {}.txt'.format(mode_num), skiprows=2)
+            H_dati = np.loadtxt(datadir+'H_Mode_right {}.txt'.format(mode_num), skiprows=2)
             
         Ex = np.transpose(E_dati[:,3].reshape(np.rint((2*radius_CST+stepsize_CST)/stepsize_CST).astype(int),np.rint((2*radius_CST+stepsize_CST)/stepsize_CST).astype(int))/np.sqrt(2/eps_0))
         Ey = np.transpose(E_dati[:,5].reshape(np.rint((2*radius_CST+stepsize_CST)/stepsize_CST).astype(int),np.rint((2*radius_CST+stepsize_CST)/stepsize_CST).astype(int))/np.sqrt(2/eps_0))
@@ -788,12 +788,12 @@ class cavity_project:
 
 class cavity_project_on_axis:
     
-    def __init__(self, mode_num, mesh): # constructor
+    def __init__(self, mode_num, mesh, datadir): # constructor
         from scipy.constants import epsilon_0 as eps_0
         from scipy.interpolate import interp1d
       
         
-        E_dati_on_axis = np.loadtxt("Mode_on_axis_{}.txt".format(mode_num), skiprows=2)
+        E_dati_on_axis = np.loadtxt(datadir+'Mode_on_axis {}.txt'.format(mode_num), skiprows=2)
         Ez_CST = E_dati_on_axis[:,7]/np.sqrt(2/eps_0)
         Z_CST = E_dati_on_axis[:, 2]*1e-2
         self.Fz = np.zeros(mesh.Z.size)
@@ -1055,7 +1055,7 @@ class simulation:
 class simulation_CST:
 
     def __init__(self, frequency = 2e9, index_max_p = 3, index_max_n = 3, Np = 50, integration = 'indirect', geometry=geometry,
-                 materials=materials, beam = beam, mesh = mesh):
+                 materials=materials, beam = beam, mesh = mesh, datadir=''):
         
         self.f = frequency
         self.index_max_p = index_max_p
@@ -1073,6 +1073,7 @@ class simulation_CST:
         self.materials = materials
         self.beam = beam
         self.mesh = mesh
+        self.datadir = datadir
         
         
     def preload_matrixes(self):
@@ -1110,7 +1111,7 @@ class simulation_CST:
                 # cav_proj = projectors(self.mesh)
                 # cav_proj.interpolate_at_boundary(cavity_n, self.mesh, zmatch)
                 # cavity_ = cavity_CST(self, mode_num = ix_n + 1)
-                cav_proj = cavity_project(ix_n + 1, self.mesh,  zmatch, radius_CST=5, stepsize_CST=0.1)
+                cav_proj = cavity_project(ix_n + 1, self.mesh,  zmatch, radius_CST=5, stepsize_CST=0.1, datadir=self.datadir)
                 scenario['ev'].append(cav_proj)
                 # scenario['ev'].append(cav_proj)
                 argument = abs(cav_proj.Hx)**2 + abs(cav_proj.Hy)**2
@@ -1220,8 +1221,8 @@ class simulation_CST:
         self.W  = np.zeros((self.index_max_n, self.index_max_n), dtype=complex)
 
         for ix_n in self.ix_n:
-            cavity_ = cavity_CST(self, mode_num = ix_n + 1)
-            cav_proj_s = cavity_project_on_axis(ix_n + 1 , self.mesh)
+            cavity_ = cavity_CST(self, mode_num = ix_n + 1, datadir=self.datadir)
+            cav_proj_s = cavity_project_on_axis(ix_n + 1 , self.mesh, datadir=self.datadir)
             
             
             
@@ -1274,8 +1275,8 @@ class simulation_CST:
         Zcav_sol = np.zeros((1, self.index_max_n), dtype=complex)
         Zcav_irr = np.zeros((1, self.index_max_n), dtype=complex)
         for ix_n in self.ix_n:
-            cavity_ = cavity_CST(self, mode_num = ix_n + 1)
-            cav_proj_s = cavity_project_on_axis(ix_n + 1 , self.mesh)
+            cavity_ = cavity_CST(self, mode_num = ix_n + 1, datadir=self.datadir)
+            cav_proj_s = cavity_project_on_axis(ix_n + 1 , self.mesh, datadir=self.datadir)
             # cavity_ = cavity(
             #     self, self.ix_pairs_n[ix_n][0], self.ix_pairs_n[ix_n][1])
             # cav_proj_s = projectors(self.mesh)

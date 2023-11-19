@@ -6,7 +6,8 @@ Created on Mon Mar  6 20:18:47 2023
 @author: nbiancac
 """
 import sys, os
-cwd = '/home/nbiancac/HDD/Work/CERN/Finite_Length/Numerical_MMM/Codes/repository_on_git/'
+# cwd = '/home/nbiancac/HDD/Work/CERN/Finite_Length/Numerical_MMM/Codes/repository_on_git/'
+cwd = '/Users/andreapassarelli/CERNBox/UNINA_INFN_PostDoc/Nicolo_collaboration/Mode_matching/github_folder/NMM/'
 os.chdir(cwd)
 sys.path.append(cwd)
 
