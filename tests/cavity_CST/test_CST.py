@@ -6,9 +6,9 @@ Created on Mon Mar  6 20:18:47 2023
 @author: nbiancac
 """
 import sys
-sys.path.append('../../src/')
+sys.path.append('../../')
 
-import nmm_CST as nmm
+from src import nmm_CST as nmm
 import matplotlib.pyplot as plt
 import numpy as np
 
