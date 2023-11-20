@@ -6,9 +6,8 @@ Created on Mon Mar  6 20:18:47 2023
 
 @author: nbiancac
 """
-import os#, sys
-os.chdir('../../src/')
-# sys.path.append('../../src/')
+import sys
+sys.path.append('./src/')
 
 import nmm
 import matplotlib.pyplot as plt
@@ -16,7 +15,7 @@ import numpy as np
 import pandas as pd
 
 plt.close('all')
-saveDir = './tests/cavity_with_current/'
+saveDir = './'
 
 beam = nmm.beam() # initialize beam parameters
 geometry = nmm.geometry(L = 0.01)
@@ -51,7 +50,7 @@ pd.DataFrame(index = fout, data = {'Re': Zout.real, 'Im': Zout.imag}).to_csv(sav
 
 #%% Just MMT
 
-saveDir = './tests/cavity_with_current/'    
+saveDir = './'    
 import pandas as pd
 df_re = pd.read_csv(saveDir+'MMMlong_Re_L0.01_Beta0.9999_b0.05_t0.05_Material_CEI_empty_cavity_fmin10000000_fmax6000000000_P35_S35.txt', index_col = 0)
 df_im = pd.read_csv(saveDir+'MMMlong_Im_L0.01_Beta0.9999_b0.05_t0.05_Material_CEI_empty_cavity_fmin10000000_fmax6000000000_P35_S35.txt', index_col = 0)
@@ -117,7 +116,7 @@ plt.savefig(saveDir+'NMM_current_cavity_b0.05_L0.01_with_Im.png')
 #%% MMT and NMM with source current, direct integration, with the capacitance
 
 plt.figure()
-saveDir = './tests/cavity_with_current/'    
+saveDir = './'    
 df = pd.read_csv(saveDir+savestr, skiprows=0, index_col=0)
 corr = (df.Im.values[0]/df.index*df.index[0])
 plt.plot(df.index/1e9, df.Re.values,'-c', ms = 2, label = 'Re, NMM (source-$J$)')
@@ -134,7 +133,7 @@ plt.savefig(saveDir+'NMM_current_cavity_b0.05_L0.01_with_Im_C-comp1.png')
 
 #%% MMT and NMM with source current, direct integration, removing the capacitance
 
-saveDir = './tests/cavity_with_current/'    
+saveDir = './'    
 import pandas as pd
 plt.figure()
 df_re = pd.read_csv(saveDir+'MMMlong_Re_L0.01_Beta0.9999_b0.05_t0.05_Material_CEI_empty_cavity_fmin10000000_fmax6000000000_P35_S35.txt', index_col = 0)
@@ -164,7 +163,7 @@ plt.tight_layout()
 plt.savefig(saveDir+'NMM_current_cavity_b0.05_L0.01_with_Im_C-comp2.png')
 
 #%% MMT and NMM with source current, indirect integration
-saveDir = './tests/cavity_with_current/'    
+saveDir = './'    
 plt.figure()
 df_re = pd.read_csv(saveDir+'MMMlong_Re_L0.01_Beta0.9999_b0.05_t0.05_Material_CEI_empty_cavity_fmin10000000_fmax6000000000_P35_S35.txt', index_col = 0)
 df_im = pd.read_csv(saveDir+'MMMlong_Im_L0.01_Beta0.9999_b0.05_t0.05_Material_CEI_empty_cavity_fmin10000000_fmax6000000000_P35_S35.txt', index_col = 0)

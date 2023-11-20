@@ -6,9 +6,8 @@ Created on Fri Nov  3 11:23:32 2023
 @author: nbiancac
 """
 # remember to cd to the main tree directory in which src/ tests/ etc... are sitting.
-import os#, sys
-os.chdir('../../src/')
-# sys.path.append('../../src/')
+import sys
+sys.path.append('./src')
 
 import nmm as nmm
 import matplotlib.pyplot as plt
@@ -16,7 +15,7 @@ import numpy as np
 import pandas as pd
 plt.close('all')
 
-saveDir = './tests/lossy_cavity/' 
+saveDir = './' 
 
 # # large range scan
 for sigma_ in [1e3]:
@@ -65,7 +64,7 @@ for sigma_ in [1e3]:
     pd.DataFrame(index = fout, data = {'Re': Zout.real, 'Im': Zout.imag}).to_csv(saveDir+savestr+'.csv')
 
 #%%
-saveDir = './tests/lossy_cavity/'    
+saveDir = './'    
 CSTDir = './tests/lossy_cavity/data_CST/'
 import pandas as pd
 
