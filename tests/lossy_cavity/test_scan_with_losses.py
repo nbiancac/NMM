@@ -6,9 +6,9 @@ Created on Fri Nov  3 11:23:32 2023
 @author: nbiancac
 """
 # remember to cd to the main tree directory in which src/ tests/ etc... are sitting.
-import sys
-sys.path.append('../../src/')
-
+import os#, sys
+os.chdir('../../src/')
+# sys.path.append('../../src/')
 
 import nmm as nmm
 import matplotlib.pyplot as plt

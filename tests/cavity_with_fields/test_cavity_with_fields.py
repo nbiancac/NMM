@@ -5,8 +5,9 @@ Created on Fri Feb 10 14:17:52 2023
 
 @author: nbiancac
 """
-import sys
-sys.path.append('../../src/')
+import os#, sys
+os.chdir('../../src/')
+# sys.path.append('../../src/')
 
 import fields_with_source_fields as fields
 import matplotlib.pyplot as plt

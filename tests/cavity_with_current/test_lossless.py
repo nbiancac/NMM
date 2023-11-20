@@ -6,8 +6,9 @@ Created on Mon Mar  6 20:18:47 2023
 
 @author: nbiancac
 """
-import sys
-sys.path.append('../../src/')
+import os#, sys
+os.chdir('../../src/')
+# sys.path.append('../../src/')
 
 import nmm
 import matplotlib.pyplot as plt
