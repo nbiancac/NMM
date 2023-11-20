@@ -7,9 +7,11 @@ Created on Mon Mar  6 20:18:47 2023
 @author: nbiancac
 """
 import sys
-sys.path.append('./src')
-sys.path.append('../src')
-sys.path.append('../../src')
+sys.path.append('./')
+sys.path.append('../')
+sys.path.append('../../')
+sys.path.append('../../..')
+
 
 import src.nmm as nmm
 import matplotlib.pyplot as plt
