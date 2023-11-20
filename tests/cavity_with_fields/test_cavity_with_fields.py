@@ -6,12 +6,9 @@ Created on Fri Feb 10 14:17:52 2023
 @author: nbiancac
 """
 import sys
-sys.path.append('./')
-sys.path.append('../')
-sys.path.append('../../')
-sys.path.append('../../..')
+sys.path.append('../../src/')
 
-import src.fields_with_source_fields as fields
+import fields_with_source_fields as fields
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.integrate import simps, trapz

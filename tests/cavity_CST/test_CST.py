@@ -6,15 +6,9 @@ Created on Mon Mar  6 20:18:47 2023
 @author: nbiancac
 """
 import sys
-# cwd = '/home/nbiancac/HDD/Work/CERN/Finite_Length/Numerical_MMM/Codes/repository_on_git/'
-# os.chdir(cwd)
-# sys.path.append('./src')
-sys.path.append('./')
-sys.path.append('../')
-sys.path.append('../../')
-sys.path.append('../../..')
+sys.path.append('../../src/')
 
-import src.nmm_CST as nmm
+import nmm_CST as nmm
 import matplotlib.pyplot as plt
 import numpy as np
 
