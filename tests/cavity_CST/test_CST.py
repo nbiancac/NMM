@@ -5,28 +5,27 @@ Created on Mon Mar  6 20:18:47 2023
 
 @author: nbiancac
 """
-import sys, os
+import sys
 # cwd = '/home/nbiancac/HDD/Work/CERN/Finite_Length/Numerical_MMM/Codes/repository_on_git/'
-cwd = '/Users/andreapassarelli/CERNBox/UNINA_INFN_PostDoc/Nicolo_collaboration/Mode_matching/github_folder/NMM/'
-os.chdir(cwd)
-sys.path.append(cwd)
+# os.chdir(cwd)
+sys.path.append('./src')
 
-import field_utlis.fields as fields
+import src.nmm_CST as nmm
 import matplotlib.pyplot as plt
 import numpy as np
 
 plt.close('all')
 saveDir = './tests/cavity_CST/'
-beam = fields.beam() # initialize beam parameters
-geometry = fields.geometry(L = 0.01)
-materials = fields.materials(sigma = 0)
+beam = nmm.beam() # initialize beam parameters
+geometry = nmm.geometry(L = 0.01)
+materials = nmm.materials(sigma = 0)
 Np = 50
-mesh = fields.mesh(geometry, Np=Np)
+mesh = nmm.mesh(geometry, Np=Np)
 
 P_max = 30
 Mode_vec = [10]
 
-sim = fields.simulation_CST(index_max_p = P_max, index_max_n = max(Mode_vec), Np = Np, \
+sim = nmm.simulation_CST(index_max_p = P_max, index_max_n = max(Mode_vec), Np = Np, \
                         geometry = geometry, materials = materials, beam = beam, mesh = mesh, datadir = saveDir+'CST/')
 
 sim.integration='direct'

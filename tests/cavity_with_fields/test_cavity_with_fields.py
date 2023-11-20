@@ -5,12 +5,10 @@ Created on Fri Feb 10 14:17:52 2023
 
 @author: nbiancac
 """
-import sys, os
-cwd = '/home/nbiancac/HDD/Work/CERN/Finite_Length/Numerical_MMM/Codes/repository_on_git/'
-os.chdir(cwd)
-sys.path.append(cwd)
+import sys
+sys.path.append('./src')
 
-import field_utlis.fields_with_source_fields as fields
+import src.fields_with_source_fields as fields
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.integrate import simps, trapz
@@ -315,115 +313,115 @@ import pandas as pd
 pd.DataFrame(index = fout, data = {'Re': Zout.real, 'Im': Zout.imag}).to_csv(saveDir+'NMM_fields_cavity_b0.05_L0.01.txt')
 
 #%% Ez
-rb = 1e-4
-Ez_r = 0
-z_r = mesh.Z+sim.L
-direction = 1
-for ix_p in sim.ix_p[0:]:
-    pipe_p = fields.pipe(sim, ix_p, direction)
-    Ez_r += (coeffs['right'][ix_p]*pipe_p.Ez(rb,0, z_r-sim.L)*pipe_p.Lz(rb,0, z_r-sim.L))
+# rb = 1e-4
+# Ez_r = 0
+# z_r = mesh.Z+sim.L
+# direction = 1
+# for ix_p in sim.ix_p[0:]:
+#     pipe_p = fields.pipe(sim, ix_p, direction)
+#     Ez_r += (coeffs['right'][ix_p]*pipe_p.Ez(rb,0, z_r-sim.L)*pipe_p.Lz(rb,0, z_r-sim.L))
 
-Ez_l = 0
-z_l = mesh.Z-sim.L
-direction = -1
-for ix_p in sim.ix_p[0:]:
-    pipe_p = fields.pipe(sim, ix_p, direction)
-    Ez_l += (coeffs['left'][ix_p]*pipe_p.Ez(rb,0, z_l)*pipe_p.Lz(rb,0, z_l))
+# Ez_l = 0
+# z_l = mesh.Z-sim.L
+# direction = -1
+# for ix_p in sim.ix_p[0:]:
+#     pipe_p = fields.pipe(sim, ix_p, direction)
+#     Ez_l += (coeffs['left'][ix_p]*pipe_p.Ez(rb,0, z_l)*pipe_p.Lz(rb,0, z_l))
 
-# source = fields.source_ring_top(sim, beam)
-source2 = fields.source(sim, beam)
+# # source = fields.source_ring_top(sim, beam)
+# source2 = fields.source(sim, beam)
 
-Ez_l += (source2.Ez(rb,0, z_l))
-Ez_r += (source2.Ez(rb,0, z_r))
+# Ez_l += (source2.Ez(rb,0, z_l))
+# Ez_r += (source2.Ez(rb,0, z_r))
 
-Ez_c = 0
-z_c = mesh.Z
-for ix_n in sim.ix_n[0:]:
-    cavity_ = fields.cavity(
-        sim, sim.ix_pairs_n[ix_n][0], sim.ix_pairs_n[ix_n][1])
-    Ez_c += (coeffs['cavity'][ix_n] * cavity_.Ez(rb,0,z_c))
-
-
-source2_c = fields.source_cav(sim, beam)
-# Ez_c += (source2_c.Ez(rb,0, z_c))
-
-plt.plot(z_c, abs(Ez_c))  
-plt.plot(z_r, abs(Ez_r))  
-plt.plot(z_l, abs(Ez_l)) 
+# Ez_c = 0
+# z_c = mesh.Z
+# for ix_n in sim.ix_n[0:]:
+#     cavity_ = fields.cavity(
+#         sim, sim.ix_pairs_n[ix_n][0], sim.ix_pairs_n[ix_n][1])
+#     Ez_c += (coeffs['cavity'][ix_n] * cavity_.Ez(rb,0,z_c))
 
 
-#%% Er
-rb = 1e-4
-Er_r = 0
-z_r = mesh.Z+sim.L
-direction = 1
-for ix_p in sim.ix_p:
+# source2_c = fields.source_cav(sim, beam)
+# # Ez_c += (source2_c.Ez(rb,0, z_c))
+
+# plt.plot(z_c, abs(Ez_c))  
+# plt.plot(z_r, abs(Ez_r))  
+# plt.plot(z_l, abs(Ez_l)) 
+
+
+# #%% Er
+# rb = 1e-4
+# Er_r = 0
+# z_r = mesh.Z+sim.L
+# direction = 1
+# for ix_p in sim.ix_p:
     
-    pipe_p = fields.pipe(sim, ix_p, direction)
-    Er_r += (coeffs['right'][ix_p]*pipe_p.Er(rb,0, z_r-sim.L)*pipe_p.Lz(rb,0, z_r-sim.L))
+#     pipe_p = fields.pipe(sim, ix_p, direction)
+#     Er_r += (coeffs['right'][ix_p]*pipe_p.Er(rb,0, z_r-sim.L)*pipe_p.Lz(rb,0, z_r-sim.L))
 
-Er_l = 0
-z_l = mesh.Z-sim.L
-direction = -1
-for ix_p in sim.ix_p:
-    pipe_p = fields.pipe(sim, ix_p, direction)
-    Er_l += (coeffs['left'][ix_p]*pipe_p.Er(rb,0, z_l)*pipe_p.Lz(rb,0, z_l))
+# Er_l = 0
+# z_l = mesh.Z-sim.L
+# direction = -1
+# for ix_p in sim.ix_p:
+#     pipe_p = fields.pipe(sim, ix_p, direction)
+#     Er_l += (coeffs['left'][ix_p]*pipe_p.Er(rb,0, z_l)*pipe_p.Lz(rb,0, z_l))
 
-# source = fields.source_ring_top(sim, beam)
-source2 = fields.source(sim, beam)
+# # source = fields.source_ring_top(sim, beam)
+# source2 = fields.source(sim, beam)
 
-Er_l += (source2.Er(rb,0, z_l))
-Er_r += (source2.Er(rb,0, z_r))
+# Er_l += (source2.Er(rb,0, z_l))
+# Er_r += (source2.Er(rb,0, z_r))
 
-Er_c = 0
-z_c = mesh.Z
-for ix_n in sim.ix_n:
-    cavity_ = fields.cavity(
-        sim, sim.ix_pairs_n[ix_n][0], sim.ix_pairs_n[ix_n][1])
-    Er_c += (coeffs['cavity'][ix_n] * cavity_.Er(rb,0,z_c))
+# Er_c = 0
+# z_c = mesh.Z
+# for ix_n in sim.ix_n:
+#     cavity_ = fields.cavity(
+#         sim, sim.ix_pairs_n[ix_n][0], sim.ix_pairs_n[ix_n][1])
+#     Er_c += (coeffs['cavity'][ix_n] * cavity_.Er(rb,0,z_c))
 
 
-# sim.b = d
-# source_c = fields.source_ring_top(sim, beam)
-source2_c = fields.source_cav(sim, beam)
-# sim.b = b
+# # sim.b = d
+# # source_c = fields.source_ring_top(sim, beam)
+# source2_c = fields.source_cav(sim, beam)
+# # sim.b = b
 
-Er_c += (source2_c.Er(rb,0, z_c))
+# Er_c += (source2_c.Er(rb,0, z_c))
 
-plt.plot(z_c, abs(Er_c))  
-plt.plot(z_r, abs(Er_r))  
-plt.plot(z_l, abs(Er_l)) 
+# plt.plot(z_c, abs(Er_c))  
+# plt.plot(z_r, abs(Er_r))  
+# plt.plot(z_l, abs(Er_l)) 
 
-#%% Hphi
-rb = 0.6e-2
-Hphi_r = 0
-z_r = mesh.Z+sim.L
-direction = 1
-for ix_p in sim.ix_p:
-    pipe_p = fields.pipe(sim, ix_p, direction)
-    Hphi_r += (coeffs['right'][ix_p]*pipe_p.Hphi(rb,0, z_r)*pipe_p.Lz(rb,0, z_r-sim.L))
+# #%% Hphi
+# rb = 0.6e-2
+# Hphi_r = 0
+# z_r = mesh.Z+sim.L
+# direction = 1
+# for ix_p in sim.ix_p:
+#     pipe_p = fields.pipe(sim, ix_p, direction)
+#     Hphi_r += (coeffs['right'][ix_p]*pipe_p.Hphi(rb,0, z_r)*pipe_p.Lz(rb,0, z_r-sim.L))
 
-Hphi_l = 0
-z_l = mesh.Z-sim.L
-direction = -1
-for ix_p in sim.ix_p:
-    pipe_p = fields.pipe(sim, ix_p, direction)
-    Hphi_l += (coeffs['left'][ix_p]*pipe_p.Hphi(rb,0, z_l)*pipe_p.Lz(rb,0, z_l))
+# Hphi_l = 0
+# z_l = mesh.Z-sim.L
+# direction = -1
+# for ix_p in sim.ix_p:
+#     pipe_p = fields.pipe(sim, ix_p, direction)
+#     Hphi_l += (coeffs['left'][ix_p]*pipe_p.Hphi(rb,0, z_l)*pipe_p.Lz(rb,0, z_l))
 
-source = fields.source(sim, beam)
-Hphi_l += (source.Hphi(rb,0, z_l))
-Hphi_r += (source.Hphi(rb,0, z_r))
+# source = fields.source(sim, beam)
+# Hphi_l += (source.Hphi(rb,0, z_l))
+# Hphi_r += (source.Hphi(rb,0, z_r))
 
-Hphi_c = 0
-z_c = mesh.Z
-for ix_n in sim.ix_n:
-    cavity_ = fields.cavity(
-        sim, sim.ix_pairs_n[ix_n][0], sim.ix_pairs_n[ix_n][1])
-    Hphi_c += (II[ix_n] * cavity_.Hphi(rb,0,z_c))
+# Hphi_c = 0
+# z_c = mesh.Z
+# for ix_n in sim.ix_n:
+#     cavity_ = fields.cavity(
+#         sim, sim.ix_pairs_n[ix_n][0], sim.ix_pairs_n[ix_n][1])
+#     Hphi_c += (II[ix_n] * cavity_.Hphi(rb,0,z_c))
 
-source = fields.source_cav(sim, beam)
-Hphi_c += (source.Hphi(rb,0, z_c))
+# source = fields.source_cav(sim, beam)
+# Hphi_c += (source.Hphi(rb,0, z_c))
     
-plt.plot(z_c, abs(Hphi_c))  
-plt.plot(z_r, abs(Hphi_r))  
-plt.plot(z_l, abs(Hphi_l)) 
+# plt.plot(z_c, abs(Hphi_c))  
+# plt.plot(z_r, abs(Hphi_r))  
+# plt.plot(z_l, abs(Hphi_l)) 

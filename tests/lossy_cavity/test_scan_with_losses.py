@@ -5,32 +5,32 @@ Created on Fri Nov  3 11:23:32 2023
 
 @author: nbiancac
 """
-import sys, os
-cwd = '/home/nbiancac/HDD/Work/CERN/Finite_Length/Numerical_MMM/Codes/repository_on_git/'
-os.chdir(cwd)
+# remember to cd to the main tree directory in which src/ tests/ etc... are sitting.
+import sys
+cwd = './src'
 sys.path.append(cwd)
 
-import field_utlis.fields_with_losses as fields
+import src.nmm as nmm
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 plt.close('all')
 
-saveDir = './' 
+saveDir = './tests/lossy_cavity/' 
 
 # # large range scan
-for sigma_ in [1e3, 1e4, 1e5, 1e6]:
+for sigma_ in [1e3]:
     
-    beam = fields.beam() # initialize beam parameters
-    geometry = fields.geometry(L = 0.01)
-    materials = fields.materials(sigma = sigma_)
+    beam = nmm.beam() # initialize beam parameters
+    geometry = nmm.geometry(L = 0.01)
+    materials = nmm.materials(sigma = sigma_)
     Np = 50
-    mesh = fields.mesh(geometry, Np=Np)
-    P_max = 25
-    S_max = 10
+    mesh = nmm.mesh(geometry, Np=Np)
+    P_max = 10
+    S_max = 5
     R_max = P_max * 2
     
-    sim = fields.simulation(index_max_p=P_max, index_max_r=R_max, index_max_s = S_max, Np = Np, \
+    sim = nmm.simulation(index_max_p=P_max, index_max_r=R_max, index_max_s = S_max, Np = Np, \
                             geometry = geometry, materials = materials, beam = beam, mesh = mesh)
     sim.integration='direct'
             
@@ -66,10 +66,10 @@ for sigma_ in [1e3, 1e4, 1e5, 1e6]:
 
 #%%
 saveDir = './tests/lossy_cavity/'    
-CSTDir = './tests/lossy_cavity/'
+CSTDir = './tests/lossy_cavity/data_CST/'
 import pandas as pd
 
-for sigma in [1e3, 1e4, 1e5, 1e6]:
+for sigma in [1e3]:
     fig, (ax1, ax2) = plt.subplots(1,2,figsize=(10,4))
     df = pd.read_csv(CSTDir+f'/cavity_sigma{sigma:.0f}.txt', sep = '\t', skiprows=0, index_col=0)
     ax1.plot(df.index, df.values[:,0], '-k', label = 'Re, CST')
