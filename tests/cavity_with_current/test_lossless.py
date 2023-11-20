@@ -6,12 +6,10 @@ Created on Mon Mar  6 20:18:47 2023
 
 @author: nbiancac
 """
-import sys, os
-cwd = '/home/nbiancac/HDD/Work/CERN/Finite_Length/Numerical_MMM/Codes/repository_on_git/'
-os.chdir(cwd)
-sys.path.append(cwd)
+import sys
+sys.path.append('./src')
 
-import field_utlis.fields_new as fields
+import src.nmm as nmm
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -19,16 +17,16 @@ import pandas as pd
 plt.close('all')
 saveDir = './tests/cavity_with_current/'
 
-beam = fields.beam() # initialize beam parameters
-geometry = fields.geometry(L = 0.01)
-materials = fields.materials(sigma = 0)
+beam = nmm.beam() # initialize beam parameters
+geometry = nmm.geometry(L = 0.01)
+materials = nmm.materials(sigma = 0)
 Np = 50
-mesh = fields.mesh(geometry, Np=Np)
+mesh = nmm.mesh(geometry, Np=Np)
 P_max = 15
 S_max = 5
 R_max = 25
         
-sim = fields.simulation(index_max_p=P_max, index_max_r=R_max, index_max_s = S_max, Np = Np, \
+sim = nmm.simulation(index_max_p=P_max, index_max_r=R_max, index_max_s = S_max, Np = Np, \
                         geometry = geometry, materials = materials, beam = beam, mesh = mesh)
 
 sim.integration='direct'
