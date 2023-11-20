@@ -5,9 +5,9 @@ Created on Fri Feb 10 14:17:52 2023
 
 @author: nbiancac
 """
-import os#, sys
-os.chdir('../../src/')
-# sys.path.append('../../src/')
+import sys
+# os.chdir('./src/')
+sys.path.append('./src')
 
 import fields_with_source_fields as fields
 import matplotlib.pyplot as plt
@@ -295,7 +295,7 @@ plt.plot(fout, Zout.imag)
 
 #%%
 
-saveDir = './tests/cavity_with_fields/'
+saveDir = './'
 import pandas as pd
 df_re = pd.read_csv(saveDir+'MMMlong_Re_L0.01_Beta0.9999_b0.05_t0.05_Material_CEI_empty_cavity_fmin10000000_fmax6000000000_P35_S35.txt', index_col = 0)
 df_im = pd.read_csv(saveDir+'MMMlong_Im_L0.01_Beta0.9999_b0.05_t0.05_Material_CEI_empty_cavity_fmin10000000_fmax6000000000_P35_S35.txt', index_col = 0)
