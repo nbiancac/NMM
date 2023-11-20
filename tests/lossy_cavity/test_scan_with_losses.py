@@ -7,8 +7,13 @@ Created on Fri Nov  3 11:23:32 2023
 """
 # remember to cd to the main tree directory in which src/ tests/ etc... are sitting.
 import sys
-cwd = './src'
-sys.path.append(cwd)
+# cwd = './src'
+# sys.path.append(cwd)
+sys.path.append('./')
+sys.path.append('../')
+sys.path.append('../../')
+sys.path.append('../../..')
+
 
 import src.nmm as nmm
 import matplotlib.pyplot as plt
