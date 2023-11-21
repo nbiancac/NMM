@@ -10,7 +10,7 @@ import sys
 sys.path.append('./src')
 
 import fields_with_source_fields as fields
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 import numpy as np
 from scipy.integrate import simps, trapz
 from scipy.constants import mu_0
