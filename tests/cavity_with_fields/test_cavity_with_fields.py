@@ -6,7 +6,6 @@ Created on Fri Feb 10 14:17:52 2023
 @author: nbiancac
 """
 import sys
-# os.chdir('./src/')
 sys.path.append('./src')
 
 import fields_with_source_fields as fields
@@ -81,7 +80,7 @@ for scenario in [left, right]:
     scenario['WF'] = WF
     
   
-for f in np.linspace(1e8, 6e9, 30):
+for f in np.linspace(1e8, 6e9, 5):
 # for f in [1.45e9]:
     print(f)
     sim.f = f

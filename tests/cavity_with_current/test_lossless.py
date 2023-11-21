@@ -34,7 +34,7 @@ sim.integration='direct'
 Zout = []
 fout = []
 sim.preload_matrixes()
-for f in np.linspace(1e8, 6e9, 50, endpoint=True)[:]:
+for f in np.linspace(1e8, 6e9, 5, endpoint=True)[:]:
     print(f"frequency {f/1e9} GHz")
     sim.f = f
     sim.compute_impedance()

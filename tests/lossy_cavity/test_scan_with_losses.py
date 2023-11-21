@@ -36,7 +36,7 @@ for sigma_ in [1e3]:
     Zout = []
     fout = []
     sim.preload_matrixes()
-    for f in np.linspace(1e8,6e9,100, endpoint=True):
+    for f in np.linspace(1e8,6e9,10, endpoint=True):
         print(f"frequency {f/1e9} GHz")
         sim.f = f
         sim.compute_impedance()
@@ -51,7 +51,7 @@ for sigma_ in [1e3]:
     # refined scan    
     Zout = []
     fout = []
-    for f in np.linspace(1.4e9,1.55e9, 200, endpoint=True):
+    for f in np.linspace(1.4e9,1.55e9, 10, endpoint=True):
         print(f"frequency {f/1e9} GHz")
         sim.f = f
         sim.compute_impedance()
@@ -65,7 +65,7 @@ for sigma_ in [1e3]:
 
 #%%
 saveDir = './'    
-CSTDir = './tests/lossy_cavity/data_CST/'
+CSTDir = './data_CST/'
 import pandas as pd
 
 for sigma in [1e3]:
