@@ -6,7 +6,6 @@ Created on Mon Mar  6 20:18:47 2023
 @author: nbiancac
 """
 import sys
-sys.path.append('./')
 sys.path.append('./src')
 
 import nmm_CST as nmm
@@ -43,10 +42,10 @@ fout = np.array(fout).flatten()
 Zout = np.array(Zout).flatten()
 
 
-plt.figure()
-plt.plot(fout, Zout.real)
-plt.plot(fout, Zout.imag)
-plt.title('Beam current: CST modes '+str(Mode_vec[0])+', fixed P = '+str(sim.index_max_p)+', Np = '+str(Np))
-plt.xlabel('Frequency [GHz]')
-plt.ylim(-2,60)
-plt.tight_layout()
+# plt.figure()
+# plt.plot(fout, Zout.real)
+# plt.plot(fout, Zout.imag)
+# plt.title('Beam current: CST modes '+str(Mode_vec[0])+', fixed P = '+str(sim.index_max_p)+', Np = '+str(Np))
+# plt.xlabel('Frequency [GHz]')
+# plt.ylim(-2,60)
+# plt.tight_layout()
