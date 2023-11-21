@@ -5,6 +5,7 @@ Created on Fri Feb 10 14:17:52 2023
 
 @author: nbiancac
 """
+# execution assumes being in the working directory is in the test file directory
 import sys
 sys.path.append('./src')
 
@@ -288,29 +289,29 @@ fout = np.array(fout).flatten()
 Zout = np.array(Zout).flatten()
 print(Zout)
 
-plt.figure()
-plt.plot(fout, Zout.real)
-plt.plot(fout, Zout.imag)
+# plt.figure()
+# plt.plot(fout, Zout.real)
+# plt.plot(fout, Zout.imag)
 
 #%%
 
-saveDir = './'
-import pandas as pd
-df_re = pd.read_csv(saveDir+'MMMlong_Re_L0.01_Beta0.9999_b0.05_t0.05_Material_CEI_empty_cavity_fmin10000000_fmax6000000000_P35_S35.txt', index_col = 0)
-df_im = pd.read_csv(saveDir+'MMMlong_Im_L0.01_Beta0.9999_b0.05_t0.05_Material_CEI_empty_cavity_fmin10000000_fmax6000000000_P35_S35.txt', index_col = 0)
-plt.plot(df_re.index/1e9, df_re.values,'-k', label = 'Re, MMT')
-plt.plot(df_im.index/1e9, df_im.values, '-r', label = 'Im, MMT')
-plt.plot(fout/1e9, Zout.real,'ob', label = 'Re, NMT (fields)')
-plt.plot(fout/1e9, Zout.imag, 'om', label = 'Im, NMT (fields)')
-plt.xlabel('f / GHz')
-plt.ylabel('$Z_l$ / $\Omega$')
-plt.ylim(-50,50)
-plt.xlim(0, 6)
-plt.legend()
-plt.tight_layout()
-plt.savefig(saveDir+'NMM_fields_cavity_b0.05_L0.01.png')
-import pandas as pd
-pd.DataFrame(index = fout, data = {'Re': Zout.real, 'Im': Zout.imag}).to_csv(saveDir+'NMM_fields_cavity_b0.05_L0.01.txt')
+# saveDir = './'
+# import pandas as pd
+# df_re = pd.read_csv(saveDir+'MMMlong_Re_L0.01_Beta0.9999_b0.05_t0.05_Material_CEI_empty_cavity_fmin10000000_fmax6000000000_P35_S35.txt', index_col = 0)
+# df_im = pd.read_csv(saveDir+'MMMlong_Im_L0.01_Beta0.9999_b0.05_t0.05_Material_CEI_empty_cavity_fmin10000000_fmax6000000000_P35_S35.txt', index_col = 0)
+# plt.plot(df_re.index/1e9, df_re.values,'-k', label = 'Re, MMT')
+# plt.plot(df_im.index/1e9, df_im.values, '-r', label = 'Im, MMT')
+# plt.plot(fout/1e9, Zout.real,'ob', label = 'Re, NMT (fields)')
+# plt.plot(fout/1e9, Zout.imag, 'om', label = 'Im, NMT (fields)')
+# plt.xlabel('f / GHz')
+# plt.ylabel('$Z_l$ / $\Omega$')
+# plt.ylim(-50,50)
+# plt.xlim(0, 6)
+# plt.legend()
+# plt.tight_layout()
+# plt.savefig(saveDir+'NMM_fields_cavity_b0.05_L0.01.png')
+# import pandas as pd
+# pd.DataFrame(index = fout, data = {'Re': Zout.real, 'Im': Zout.imag}).to_csv(saveDir+'NMM_fields_cavity_b0.05_L0.01.txt')
 
 #%% Ez
 # rb = 1e-4
