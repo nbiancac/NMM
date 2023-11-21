@@ -52,3 +52,8 @@ Mode_vec = [10]
 # plt.xlabel('Frequency [GHz]')
 # plt.ylim(-2,60)
 # plt.tight_layout()
+
+def pytest_sessionfinish(session, exitstatus):
+    print()
+    print('run status code:', exitstatus)
+
