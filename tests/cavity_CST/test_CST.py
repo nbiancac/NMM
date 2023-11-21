@@ -26,23 +26,23 @@ mesh = nmm.mesh(geometry, Np=Np)
 P_max = 30
 Mode_vec = [10]
 
-sim = nmm.simulation_CST(index_max_p = P_max, index_max_n = max(Mode_vec), Np = Np, \
-                        geometry = geometry, materials = materials, beam = beam, mesh = mesh, datadir = saveDir+'cst/')
+# sim = nmm.simulation_CST(index_max_p = P_max, index_max_n = max(Mode_vec), Np = Np, \
+#                         geometry = geometry, materials = materials, beam = beam, mesh = mesh, datadir = saveDir+'cst/')
 
-sim.integration='direct'
+# sim.integration='direct'
         
-Zout = []
-fout = []
-sim.preload_matrixes()
-for f in np.linspace(1e9, 5e9, 5, endpoint=True)[:]:
-    print(f"frequency {f/1e9} GHz")
-    sim.f = f
-    sim.compute_impedance()
-    Zout.append(sim.Z)
-    fout.append(sim.f)
+# Zout = []
+# fout = []
+# sim.preload_matrixes()
+# for f in np.linspace(1e9, 5e9, 5, endpoint=True)[:]:
+#     print(f"frequency {f/1e9} GHz")
+#     sim.f = f
+#     sim.compute_impedance()
+#     Zout.append(sim.Z)
+#     fout.append(sim.f)
     
-fout = np.array(fout).flatten()
-Zout = np.array(Zout).flatten()
+# fout = np.array(fout).flatten()
+# Zout = np.array(Zout).flatten()
 
 
 # plt.figure()
