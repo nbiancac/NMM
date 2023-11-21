@@ -11,7 +11,7 @@ import sys
 sys.path.append('./src/')
 
 import nmm
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
