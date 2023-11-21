@@ -63,6 +63,7 @@ for sigma_ in [1e3]:
     savestr+='_refined'
     pd.DataFrame(index = fout, data = {'Re': Zout.real, 'Im': Zout.imag}).to_csv(saveDir+savestr+'.csv')
 
+print('Done')
 #%%
 # saveDir = './'    
 # CSTDir = './data_CST/'
