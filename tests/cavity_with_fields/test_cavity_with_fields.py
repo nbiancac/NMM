@@ -15,7 +15,7 @@ import numpy as np
 from scipy.integrate import simps, trapz
 from scipy.constants import mu_0
 
-plt.close('all')
+# plt.close('all')
 
 beam = fields.beam() # initialize beam parameters
 
