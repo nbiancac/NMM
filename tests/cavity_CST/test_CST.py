@@ -7,7 +7,7 @@ Created on Mon Mar  6 20:18:47 2023
 """
 import sys
 sys.path.append('./')
-sys.path.append('./CST')
+sys.path.append('./cst')
 sys.path.append('./src')
 
 import nmm_CST as nmm
@@ -26,7 +26,7 @@ P_max = 30
 Mode_vec = [10]
 
 sim = nmm.simulation_CST(index_max_p = P_max, index_max_n = max(Mode_vec), Np = Np, \
-                        geometry = geometry, materials = materials, beam = beam, mesh = mesh, datadir = saveDir+'CST/')
+                        geometry = geometry, materials = materials, beam = beam, mesh = mesh, datadir = saveDir+'cst/')
 
 sim.integration='direct'
         
