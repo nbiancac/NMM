@@ -6,7 +6,7 @@ Created on Fri Nov  3 11:23:32 2023
 @author: nbiancac
 """
 # execution assumes being in the working directory is in the test file directory
-import sys
+import sys 
 sys.path.append('./src')
 
 import nmm as nmm
