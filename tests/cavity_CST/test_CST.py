@@ -6,7 +6,7 @@ Created on Mon Mar  6 20:18:47 2023
 @author: nbiancac
 """
 import sys
-sys.path.append('./CST/')
+sys.path.append('./CST')
 sys.path.append('./src')
 
 import nmm_CST as nmm
