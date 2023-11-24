@@ -83,7 +83,7 @@ fout = np.array(fout).flatten()
 Zout = np.array(Zout).flatten()
 
 plt.figure()
-plt.plot(fout, Zout.real, label = f'CST {len(list_modes)} modes')
+plt.plot(fout, Zout.real, label = f'CST {len(list_selected_modes)} modes')
 
 Zout = []
 fout = []
