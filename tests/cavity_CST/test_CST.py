@@ -8,14 +8,13 @@ Created on Mon Mar  6 20:18:47 2023
 import sys
 sys.path.append('./')
 sys.path.append('./cst')
-sys.path.append('./cst/')
 sys.path.append('./src/')
 
 import nmm_CST as nmm
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 import numpy as np
 
-plt.close('all')
+# plt.close('all')
 saveDir = './'
 beam = nmm.beam() # initialize beam parameters
 geometry = nmm.geometry(L = 0.01)
