@@ -103,12 +103,19 @@ class simulation:
 class simulation_CST:
 
     def __init__(self, frequency = 2e9, index_max_p = 3, index_max_n = 3, Np = 50, integration = 'indirect', geometry=geometry,
-                 materials=materials, beam = beam, mesh = mesh, datadir = './CST'):
+                 materials=materials, beam = beam, mesh = mesh, datadir = './CST', list_modes = []):
         
         self.f = frequency
         self.index_max_p = index_max_p
-        self.index_max_n = index_max_n
         self.ix_p = np.arange(self.index_max_p)
+        if len(list_modes) > 0:
+            self.index_max_n = len(list_modes)
+            self.ix_n = np.arange(self.index_max_n)
+            self.x_n = list_modes
+        else:
+            self.index_max_n = index_max_n
+            self.ix_n = np.arange(self.index_max_n)
+            self.x_n = self.ix_n + 1
         self.ix_n = np.arange(self.index_max_n)
         self.b = geometry.b
         self.t = geometry.t
@@ -158,8 +165,8 @@ class simulation_CST:
                 #     self, self.ix_pairs_n[ix_n][0], self.ix_pairs_n[ix_n][1])
                 # cav_proj = projectors(self.mesh)
                 # cav_proj.interpolate_at_boundary(cavity_n, self.mesh, zmatch)
-                # cavity_ = cavity_CST(self, mode_num = ix_n + 1)
-                cav_proj = cavity_project(ix_n + 1, self.mesh,  zmatch, radius_CST=5, stepsize_CST=0.1, datadir = self.datadir)
+                # cavity_ = cavity_CST(self, mode_num = self.x_n[ix_n])
+                cav_proj = cavity_project(self.x_n[ix_n], self.mesh,  zmatch, radius_CST=5, stepsize_CST=0.1, datadir = self.datadir)
                 scenario['ev'].append(cav_proj)
                 # scenario['ev'].append(cav_proj)
                 argument = abs(cav_proj.Hx)**2 + abs(cav_proj.Hy)**2
@@ -269,8 +276,8 @@ class simulation_CST:
         self.W  = np.zeros((self.index_max_n, self.index_max_n), dtype=complex)
 
         for ix_n in self.ix_n:
-            cavity_ = cavity_CST(self, mode_num = ix_n + 1, datadir = self.datadir)
-            cav_proj_s = cavity_project_on_axis(ix_n + 1 , self.mesh, datadir = self.datadir)
+            cavity_ = cavity_CST(self, mode_num = self.x_n[ix_n], datadir = self.datadir)
+            cav_proj_s = cavity_project_on_axis(self.x_n[ix_n] , self.mesh, datadir = self.datadir)
             
             
             
@@ -323,8 +330,8 @@ class simulation_CST:
         Zcav_sol = np.zeros((1, self.index_max_n), dtype=complex)
         Zcav_irr = np.zeros((1, self.index_max_n), dtype=complex)
         for ix_n in self.ix_n:
-            cavity_ = cavity_CST(self, mode_num = ix_n + 1, datadir = self.datadir)
-            cav_proj_s = cavity_project_on_axis(ix_n + 1 , self.mesh, datadir = self.datadir)
+            cavity_ = cavity_CST(self, mode_num = self.x_n[ix_n], datadir = self.datadir)
+            cav_proj_s = cavity_project_on_axis(self.x_n[ix_n] , self.mesh, datadir = self.datadir)
             # cavity_ = cavity(
             #     self, self.ix_pairs_n[ix_n][0], self.ix_pairs_n[ix_n][1])
             # cav_proj_s = projectors(self.mesh)
