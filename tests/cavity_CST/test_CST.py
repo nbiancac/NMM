@@ -11,10 +11,9 @@ sys.path.append('./cst')
 sys.path.append('./src/')
 
 import nmm_CST as nmm
-# import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 import numpy as np
 
-# plt.close('all')
 saveDir = './'
 beam = nmm.beam() # initialize beam parameters
 geometry = nmm.geometry(L = 0.01)
