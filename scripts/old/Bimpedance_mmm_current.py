@@ -15,7 +15,7 @@ import time
 
 
 plt.close('all')
-beam = fields.beam() # initialize beam parameters
+beam = fields.Beam() # initialize beam parameters
 
 # P_vec = np.arange(1, 55, 2, dtype=int)
 P_max = 30
@@ -27,11 +27,11 @@ Np = 50
 
 plt.close('all')
 
-beam = fields.beam(beta=0.9999)
+beam = fields.Beam(beta=0.9999)
 beam.Q = 1
 
 sim = fields.simulation(index_max_p=1, index_max_r=R_max, index_max_s = S_max)
-mesh = fields.mesh(sim, Np=Np)
+mesh = fields.Mesh(sim, Np=Np)
 
 left = {'direction': -1,
         'zmatch': 0,

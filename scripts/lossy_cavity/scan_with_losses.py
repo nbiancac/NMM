@@ -5,32 +5,34 @@ Created on Fri Nov  3 11:23:32 2023
 
 @author: nbiancac
 """
-# execution assumes being in the working directory is in the test file directory
-import sys 
-sys.path.append('./src')
-
-import nmm as nmm
-#import matplotlib.pyplot as plt
-import numpy as np
-import pandas as pd
-# plt.close('all')
+import path_for_scripts
+with path_for_scripts.Context():
+    import matplotlib.pyplot as plt
+    import numpy as np
+    import pandas as pd
+    import nmm_CST as nmm
 
 saveDir = './' 
 
 # # large range scan
 for sigma_ in [1e3]:
     
-    beam = nmm.beam() # initialize beam parameters
-    geometry = nmm.geometry(L = 0.01)
-    materials = nmm.materials(sigma = sigma_)
-    Np = 50
-    mesh = nmm.mesh(geometry, Np=Np)
+    beam = nmm.Beam() # initialize beam parameters
+    geometry = nmm.Pillbox(L=0.01)
+    materials = nmm.Materials(sigma=sigma_)
+    mesh = nmm.Mesh(geometry, Np=50)
     P_max = 10
     S_max = 5
     R_max = P_max * 2
-    
-    sim = nmm.simulation(index_max_p=P_max, index_max_r=R_max, index_max_s = S_max, Np = Np, \
-                            geometry = geometry, materials = materials, beam = beam, mesh = mesh)
+    mode = nmm.Mode(is_analytical=True, index_max_p=P_max, max_mode_number=None,
+                        split_rs=True, index_max_r=R_max, index_max_s = S_max)
+    sim = nmm.simulation_CST(
+        mode=mode,
+        geometry=geometry,
+        materials=materials,
+        beam=beam,
+        mesh=mesh,
+    )
     sim.integration='direct'
             
     Zout = []
@@ -63,11 +65,13 @@ for sigma_ in [1e3]:
     savestr+='_refined'
     pd.DataFrame(index = fout, data = {'Re': Zout.real, 'Im': Zout.imag}).to_csv(saveDir+savestr+'.csv')
 
-print('Done')
+print('Done.')
+np.testing.assert_almost_equal(Zout[0], 87.28596982+114.67742084j)  # assert if result is unchanged
+print('Test passed.')
 #%%
-saveDir = './'    
+saveDir = './'
 CSTDir = './data_CST/'
-import pandas as pd
+
 
 for sigma in [1e3]:
     fig, (ax1, ax2) = plt.subplots(1,2,figsize=(10,4))
@@ -90,7 +94,7 @@ for sigma in [1e3]:
     ax1.plot(df.index/1e9, df.Im.values - corr, '-m', ms=1, label = 'Im, NMM')
     ax2.plot(df.index/1e9, df.Re.values,'-b', ms=1, label = 'Re, NMM')
     ax2.plot(df.index/1e9, df.Im.values - corr, '-m', ms=1, label = 'Im, NMM')
-    
+
     ax2.set_xlim(1.38, 1.55)
     ax1.set_xlim(0, 5)
     # ax2.set_xlim(3, 4.5)
@@ -104,4 +108,5 @@ for sigma in [1e3]:
     ax2.legend()
     plt.suptitle(f'$\sigma$={sigma:.0e} S/m')
     plt.tight_layout()
-    # plt.savefig(saveDir+f'losses_cavity_sigma{sigma}_b0.005_L0.02.png')    
+    # plt.savefig(saveDir+f'losses_cavity_sigma{sigma}_b0.005_L0.02.png')
+plt.show()

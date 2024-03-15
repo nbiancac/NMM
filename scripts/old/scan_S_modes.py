@@ -11,69 +11,48 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy.integrate import trapz
 from scipy.constants import mu_0
-
 plt.close('all')
-beam = fields.beam() # initialize beam parameters
 
-P_max = 9
-S_max = 1
-R_vec = np.arange(1, 10, 1, dtype=int)
 
+P_max = 30
+S_vec = np.arange(2, 3, 1, dtype=int)
+R_max = 30
 Np = 100
 
-
-plt.close('all')
-
-beam = fields.beam(beta=0.9999)
+beam = fields.Beam(beta=0.9999)
 beam.Q = 1
 
-sim = fields.simulation(index_max_p=P_max, index_max_r=np.max(R_vec), index_max_s = S_max)
-mesh = fields.mesh(sim, Np=Np)
-
-left = {'direction': -1,
-        'zmatch': 0,
-        'ev': [],
-        'ev_all': [],
-        }
-
-right = {'direction': 1,
-         'zmatch': sim.L,
-         'ev': [],
-         'ev_all': []
-         }
-
-print('Computing eigenmode fields at boundaries (only once).')
-print(f'Number of eigenmodes: {len(sim.ix_n)}')
-for scenario in [left, right]:
-    zmatch = scenario['zmatch']
-    for ix_n in sim.ix_n:
-        cavity = fields.cavity(
-            sim, sim.ix_pairs_n[ix_n][0], sim.ix_pairs_n[ix_n][1])
-        cav_proj = fields.projectors(mesh)
-        cav_proj.interpolate_at_boundary(cavity, mesh, zmatch)
-        scenario['ev_all'].append(cav_proj)
-
 Z_conv = [];
-for iR in R_vec:
+for iS in S_vec:
         Zout = []
         fout = []
-        sim = fields.simulation(index_max_p=P_max, index_max_r=iR, index_max_s = S_max)
-
-        for scenario in [left, right]:
-            scenario['ev'] = scenario['ev_all'][0:iR]
+        sim = fields.simulation(index_max_p=P_max, index_max_r=R_max, index_max_s = iS)
+        mesh = fields.Mesh(sim, Np=Np)
         
-
+        left = {'direction': -1,
+                'zmatch': 0,
+                'ev': [],
+                }
+        
+        right = {'direction': 1,
+                 'zmatch': sim.L,
+                 'ev': [],
+                }
+        
+        print(f'Number of eigenmodes: {len(sim.ix_n)}')
+        for scenario in [left, right]:
+            zmatch = scenario['zmatch']
+            for ix_n in sim.ix_n:
+                cavity = fields.cavity(
+                    sim, sim.ix_pairs_n[ix_n][0], sim.ix_pairs_n[ix_n][1])
+                cav_proj = fields.projectors(mesh)
+                cav_proj.interpolate_at_boundary(cavity, mesh, zmatch)
+                scenario['ev'].append(cav_proj)
+                
         print(f"Modes in the pipes {sim.index_max_p}.\
         \nModes in the cavity {sim.index_max_n}.\
         \nNumber of points {Np}.")                        
-        # for f in np.sort(np.concatenate(([1e6], np.linspace(1e9,6e9,100, endpoint=1)))):   
-        # for f in np.linspace(2e9,2.15e9,31, endpoint=1):   
-        # for f in np.linspace(4.74e9,4.85e9,51, endpoint=1):   
-        # for f in np.linspace(1e8,7e9,30, endpoint=1):   
-        #range1 = np.linspace(1e9,7e9,100, endpoint=1)
-        # range2 = np.linspace(4.2e9,4.2e9,1, endpoint=1)
-        # range1 = np.arange(1e7,7e9,1e7)
-        # range1 = np.array([1.3871436e9])
+
         range1 = np.array([4.2e9])
         for f in np.unique(np.sort(np.concatenate((range1, range1)))): 
 
@@ -263,9 +242,9 @@ for iR in R_vec:
 
 Z_conv = np.array(Z_conv).flatten()
 plt.figure()
-plt.plot(R_vec, Z_conv.real)
+plt.plot(S_vec, Z_conv.real)
 plt.legend(['real', 'imag'])
-plt.title('Beam current: P scan, fixed P = '+str(max(sim.index_max_p))+', Np = '+str(Np))
+plt.title('Beam current: S scan, fixed P = '+str((sim.index_max_p))+', Np = '+str(Np)+', R = '+str(R_max))
 plt.xlabel('Cavity modes')
 plt.ylim(0,120)
 plt.tight_layout()  

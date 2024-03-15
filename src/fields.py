@@ -1,5 +1,7 @@
 import numpy as np
 from math_utils import epsilon_s
+
+
 class source_point:
     """
     sim: object gathering the simulation parameters (frequency, number of modes, etc...)
@@ -550,10 +552,10 @@ class cavity:
         omega0 = 2 * np.pi * f0
 
         ix_r = index_r
-        Nmax_r = sim.index_max_r
+        Nmax_r = sim.mode.index_max_r
 
         ix_s = index_s
-        Nmax_s = sim.index_max_s
+        Nmax_s = sim.mode.index_max_s
         Y0 = np.sqrt(epsilon_0/mu_0)
         Z0 = 1/Y0
         alpha_r = jn_zeros(0, Nmax_r)[ix_r]
@@ -642,8 +644,9 @@ class cavity_CST:
         f_CST = np.loadtxt(datadir+"/Frequency.txt", skiprows=2)[mode_num-1,1]
         k_rs = f_CST * 1e9 * 2 * np.pi * np.sqrt(epsilon_0 * mu_0)
         omega_rs = k_rs * c
-
+        q_factors = np.loadtxt(datadir + "/q_factors.txt", skiprows=2)[mode_num - 1, 1]
         self.k_0 = alpha_0 / d
+        self.Q = q_factors
         self.k_rs = k_rs
         self.omega_rs = omega_rs
         self.Z0 = Z0

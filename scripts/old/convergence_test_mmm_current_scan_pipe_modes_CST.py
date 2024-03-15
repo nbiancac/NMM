@@ -11,24 +11,27 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy.integrate import trapz
 from scipy.constants import mu_0
+import time
 
 plt.close('all')
-beam = fields.beam() # initialize beam parameters
+beam = fields.Beam() # initialize beam parameters
 
-P_vec = np.arange(1, 60, 2, dtype=int)
-S_max = 2
-R_max = 30
+P_max = 50
+P_vec = np.arange(1, P_max, 1, dtype=int)
+# S_max = 15
+# R_max = 15
+mode_index = 10
 
-Np = 50
+Np = 51
 
 
 plt.close('all')
 
-beam = fields.beam(beta=0.9999)
+beam = fields.Beam(beta=0.9999)
 beam.Q = 1
 
-sim = fields.simulation(index_max_p=1, index_max_r=R_max, index_max_s = S_max)
-mesh = fields.mesh(sim, Np=Np)
+sim = fields.simulation_CST(index_max_p = P_max, index_max_mode = mode_index)
+mesh = fields.Mesh(sim, Np=Np)
 
 left = {'direction': -1,
         'zmatch': 0,
@@ -41,24 +44,27 @@ right = {'direction': 1,
          }
 
 print('Computing eigenmode fields at boundaries (only once).')
-print(f'Number of eigenmodes: {len(sim.ix_n)}')
+print(f'Number of eigenmodes: {len(sim.ix_mode)}')
+start_time_matrix = time.time()
 for scenario in [left, right]:
     zmatch = scenario['zmatch']
-    for ix_n in sim.ix_n:
-        cavity = fields.cavity(
-            sim, sim.ix_pairs_n[ix_n][0], sim.ix_pairs_n[ix_n][1])
-        cav_proj = fields.projectors(mesh)
-        cav_proj.interpolate_at_boundary(cavity, mesh, zmatch)
+    for ix_n in sim.ix_mode:
+        cavity = fields.cavity_CST(sim, mode_num = ix_n + 1)
+        cav_proj = fields.cavity_project(ix_n + 1, mesh, zmatch)
         scenario['ev'].append(cav_proj)
+end_time_matrix = time.time()
+tempo_trascorso_matrix = end_time_matrix - start_time_matrix
+print(f"\nTempo impiegatoper costruzione matrice: {tempo_trascorso_matrix/60} minuti\n")
 
+start_time = time.time()
 Z_conv = [];
 for iP in P_vec:
         Zout = []
         fout = []
-        sim = fields.simulation(index_max_p=iP, index_max_r=R_max, index_max_s = S_max)
+        sim = fields.simulation_CST(index_max_p=iP, index_max_mode=mode_index)
 
         print(f"Modes in the pipes {sim.index_max_p}.\
-        \nModes in the cavity {sim.index_max_n}.\
+        \nModes in the cavity {sim.index_max_mode}.\
         \nNumber of points {Np}.")                        
         # for f in np.sort(np.concatenate(([1e6], np.linspace(1e9,6e9,100, endpoint=1)))):   
         # for f in np.linspace(2e9,2.15e9,31, endpoint=1):   
@@ -90,10 +96,10 @@ for iP in P_vec:
 
                 # magnetic matching
                 A = np.zeros((sim.index_max_p, sim.index_max_p), dtype=complex)
-                B = np.zeros((sim.index_max_p, sim.index_max_n), dtype=complex)
-                C = np.zeros((sim.index_max_n, 1), dtype=complex)
-                D = np.zeros((sim.index_max_n, sim.index_max_p), dtype=complex)
-                WF = np.zeros((sim.index_max_n, sim.index_max_n), dtype=complex)
+                B = np.zeros((sim.index_max_p, sim.index_max_mode), dtype=complex)
+                C = np.zeros((sim.index_max_mode, 1), dtype=complex)
+                D = np.zeros((sim.index_max_mode, sim.index_max_p), dtype=complex)
+                WF = np.zeros((sim.index_max_mode, sim.index_max_mode), dtype=complex)
                 E = np.zeros((sim.index_max_p, 1), dtype=complex)
                 Z = np.zeros((1, sim.index_max_p), dtype=complex)
 
@@ -125,9 +131,9 @@ for iP in P_vec:
                         pipe_proj_q = v_p[ix_q]
                         grad_x_q, grad_y_q = pipe_proj_q.Hx, pipe_proj_q.Hy
                         A[ix_p, ix_q] = trapz(trapz((pipe_proj_p.Hx)*grad_x_q + (pipe_proj_p.Hy)*grad_y_q, mesh.xi), mesh.yi)
-                    for ix_n in sim.ix_n:
-                        cavity = fields.cavity(
-                            sim, sim.ix_pairs_n[ix_n][0], sim.ix_pairs_n[ix_n][1])
+                    for ix_n in sim.ix_mode:
+                        # cavity = fields.cavity(
+                        #     sim, sim.ix_pairs_n[ix_n][0], sim.ix_pairs_n[ix_n][1])
                         cav_proj = scenario['ev'][ix_n]
                         B[ix_p, ix_n] = trapz(trapz(cav_proj.Hx * grad_x_p + cav_proj.Hy * grad_y_p, mesh.xi), mesh.yi)
                         argument = direction * fields.cross_prod_t(source_proj.Ex, source_proj.Ey, source_proj.Ez,
@@ -148,19 +154,17 @@ for iP in P_vec:
                 scenario['Z'] = Z
                 scenario['WF'] = WF
 
-            F = np.zeros((sim.index_max_n, 1), dtype=complex)
-            G = np.zeros((sim.index_max_n, 1), dtype=complex)
-            R = np.zeros((sim.index_max_n, 1), dtype=complex)
-            MI = np.zeros((sim.index_max_n, sim.index_max_n), dtype=complex)
-            MV = np.zeros((sim.index_max_n, sim.index_max_n), dtype=complex)
-            MF = np.zeros((sim.index_max_n, sim.index_max_n), dtype=complex)
-            ID = np.zeros((sim.index_max_n, sim.index_max_n), dtype=complex)
-            loss  = np.zeros((sim.index_max_n, sim.index_max_n), dtype=complex)
-            for ix_n in sim.ix_n:
-                cavity = fields.cavity(
-                    sim, sim.ix_pairs_n[ix_n][0], sim.ix_pairs_n[ix_n][1])
-                cav_proj_s = fields.projectors(mesh)
-                cav_proj_s.interpolate_on_axis(cavity, mesh, source.rb, 0)
+            F = np.zeros((sim.index_max_mode, 1), dtype=complex)
+            G = np.zeros((sim.index_max_mode, 1), dtype=complex)
+            R = np.zeros((sim.index_max_mode, 1), dtype=complex)
+            MI = np.zeros((sim.index_max_mode, sim.index_max_mode), dtype=complex)
+            MV = np.zeros((sim.index_max_mode, sim.index_max_mode), dtype=complex)
+            MF = np.zeros((sim.index_max_mode, sim.index_max_mode), dtype=complex)
+            ID = np.zeros((sim.index_max_mode, sim.index_max_mode), dtype=complex)
+            loss  = np.zeros((sim.index_max_mode, sim.index_max_mode), dtype=complex)
+            for ix_n in sim.ix_mode:
+                cavity = fields.cavity_CST(sim, mode_num = ix_n + 1)
+                cav_proj_s = fields.cavity_project_on_axis(ix_n + 1 , mesh)
                 F[ix_n, 0] = -(cavity.k_rs) / (cavity.k_0**2 - cavity.k_rs**2) * \
                     trapz((cav_proj_s.Ez)  * beam.Q * np.exp(-1j * source.alpha_b * mesh.Z / sim.b), mesh.Z)
                 
@@ -190,12 +194,10 @@ for iP in P_vec:
                 left['B'] - MI @ right['D'] @ np.linalg.inv(right['A']) @ right['B']) \
                 @ MI @ right['D'] @ np.linalg.inv(right['A']) @ right['E']
 
-            W  = np.zeros((sim.index_max_n, sim.index_max_n), dtype=complex)
-            for ix_n in sim.ix_n:
-                cavity = fields.cavity(
-                    sim, sim.ix_pairs_n[ix_n][0], sim.ix_pairs_n[ix_n][1])
-                cav_proj_s = fields.projectors(mesh)
-                cav_proj_s.interpolate_on_axis(cavity, mesh, source.rb, 0)
+            W  = np.zeros((sim.index_max_mode, sim.index_max_mode), dtype=complex)
+            for ix_n in sim.ix_mode:
+                cavity = fields.cavity_CST(sim, mode_num = ix_n + 1)
+                cav_proj_s = fields.cavity_project_on_axis(ix_n + 1 , mesh)
 
                 Zw = np.sqrt(mu_0 * 2 * np.pi * sim.f / 2 /sim.sigma)
                 Zw_rs = np.sqrt(mu_0 * cavity.omega_rs / 2 / sim.sigma)
@@ -231,13 +233,11 @@ for iP in P_vec:
             
             # Impedance
             from scipy.constants import epsilon_0
-            Zcav_sol = np.zeros((1, sim.index_max_n), dtype=complex)
-            Zcav_irr = np.zeros((1, sim.index_max_n), dtype=complex)
-            for ix_n in sim.ix_n:
-                cavity = fields.cavity(
-                    sim, sim.ix_pairs_n[ix_n][0], sim.ix_pairs_n[ix_n][1])
-                cav_proj_s = fields.projectors(mesh)
-                cav_proj_s.interpolate_on_axis(cavity, mesh, source.rb, 0)
+            Zcav_sol = np.zeros((1, sim.index_max_mode), dtype=complex)
+            Zcav_irr = np.zeros((1, sim.index_max_mode), dtype=complex)
+            for ix_n in sim.ix_mode:
+                cavity = fields.cavity_CST(sim, mode_num = ix_n + 1)
+                cav_proj_s = fields.cavity_project_on_axis(ix_n + 1 , mesh)
                 Zcav_sol[0, ix_n] = - trapz(cav_proj_s.Ez * np.exp(1j * source.alpha_b * mesh.Z / sim.b), mesh.Z) 
                 Zcav_irr[0, ix_n] = - trapz(cav_proj_s.Fz * np.exp(1j * source.alpha_b * mesh.Z / sim.b), mesh.Z)
             
@@ -255,11 +255,16 @@ for iP in P_vec:
         Z_conv.append(Zout)
         print(Zout)
 
+end_time = time.time()
+tempo_trascorso = end_time - start_time
+print(f"\nTempo impiegato calcolo: {tempo_trascorso/60} minuti\n")
+
 Z_conv = np.array(Z_conv).flatten()
+# np.savetxt('Arrays/Z_conv_Pscan_CST'+str(mode_index)+'_Np'+str(Np)+'.txt', Z_conv, fmt='%.16f%+.16fj')
+
 plt.figure()
 plt.plot(P_vec, Z_conv.real)
-plt.title('Beam current: P scan, fixed R = '+str((R_max))+', Np = '+str(Np)+', S = '+str(S_max))
-plt.xlabel('Modes P')
 plt.legend(['real', 'imag'])
+plt.title('Beam current: P scan, fixed cav modes = '+str(sim.index_max_mode)+', Np = '+str(Np))
 plt.ylim(0,120)
 plt.tight_layout()  

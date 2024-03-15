@@ -14,7 +14,7 @@ from scipy.constants import mu_0
 import time
 
 plt.close('all')
-beam = fields.beam() # initialize beam parameters
+beam = fields.Beam() # initialize beam parameters
 
 P_max = 30
 mode_index = 10
@@ -24,12 +24,12 @@ Np_vec = np.arange(40, 51, 5, dtype=int)
 
 plt.close('all')
 
-beam = fields.beam(beta=0.9999)
+beam = fields.Beam(beta=0.9999)
 beam.Q = 1
 
 for Np in Np_vec:
     sim = fields.simulation_CST(index_max_p = P_max, index_max_mode = mode_index)
-    mesh = fields.mesh(sim, Np=Np)
+    mesh = fields.Mesh(sim, Np=Np)
     print(f'Number of points: {mesh.Np}')
     
     left = {'direction': -1,

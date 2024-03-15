@@ -14,7 +14,7 @@ from scipy.constants import mu_0
 import time
 
 plt.close('all')
-beam = fields.beam() # initialize beam parameters
+beam = fields.Beam() # initialize beam parameters
 
 P_max = 30
 
@@ -25,11 +25,11 @@ Np = 50
 
 plt.close('all')
 
-beam = fields.beam(beta=0.9999)
+beam = fields.Beam(beta=0.9999)
 beam.Q = 1
 
 sim = fields.simulation_CST(index_max_p = P_max, index_max_mode = max(Mode_vec))
-mesh = fields.mesh(sim, Np=Np)
+mesh = fields.Mesh(sim, Np=Np)
 
 left = {'direction': -1,
         'zmatch': 0,

@@ -13,22 +13,22 @@ from scipy.integrate import trapz
 from scipy.constants import mu_0
 
 plt.close('all')
-beam = fields.beam() # initialize beam parameters
+beam = fields.Beam() # initialize beam parameters
 
-P_vec = np.arange(1, 55, 2, dtype=int)
-S_max = 15
-R_max = 15
+P_vec = np.arange(1, 60, 2, dtype=int)
+S_max = 2
+R_max = 30
 
-Np = 100
+Np = 50
 
 
 plt.close('all')
 
-beam = fields.beam(beta=0.9999)
+beam = fields.Beam(beta=0.9999)
 beam.Q = 1
 
 sim = fields.simulation(index_max_p=1, index_max_r=R_max, index_max_s = S_max)
-mesh = fields.mesh(sim, Np=Np)
+mesh = fields.Mesh(sim, Np=Np)
 
 left = {'direction': -1,
         'zmatch': 0,
@@ -258,7 +258,8 @@ for iP in P_vec:
 Z_conv = np.array(Z_conv).flatten()
 plt.figure()
 plt.plot(P_vec, Z_conv.real)
+plt.title('Beam current: P scan, fixed R = '+str((R_max))+', Np = '+str(Np)+', S = '+str(S_max))
+plt.xlabel('Modes P')
 plt.legend(['real', 'imag'])
-plt.title('Beam current: P scan, fixed N = '+str(max(sim.index_max_n))+', Np = '+str(Np))
 plt.ylim(0,120)
 plt.tight_layout()  
