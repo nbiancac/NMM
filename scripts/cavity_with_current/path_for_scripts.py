@@ -13,9 +13,7 @@ import os
 class Context:
     def __enter__(self):
         current_dir = os.getcwd()
-        sys.path.append(
-            current_dir + "/../../src/"
-        )  # adding nmm source directory to syspath
+        sys.path.append(current_dir + '/../../src/')  # adding nmm source directory to syspath
 
     def __exit__(self, *args):
         pass

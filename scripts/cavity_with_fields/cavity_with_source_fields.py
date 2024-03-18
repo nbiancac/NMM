@@ -5,27 +5,25 @@ Created on Fri Feb 10 14:17:52 2023
 
 @author: nbiancac
 """
-# execution assumes being in the working directory is in the test file directory
-import sys
-sys.path.append('./src')
-
-import fields_with_source_fields as fields
-#import matplotlib.pyplot as plt
-import numpy as np
+import path_for_scripts
+with path_for_scripts.Context():
+    import matplotlib.pyplot as plt
+    import numpy as np
+    import fields_with_source_fields as fields
 from scipy.integrate import simps, trapz
 from scipy.constants import mu_0
 
 # plt.close('all')
 
-beam = fields.beam() # initialize beam parameters
+beam = fields.Beam() #initialize beam parameters
 
 Zout=[]
 fout = []
 
-sim = fields.simulation(index_max_p = 15, index_max_s = 5)
+sim = fields.Simulation(index_max_p = 15, index_max_s = 5)
 sim.sigma = 0 
-mesh = fields.mesh(sim, Np = 50)
-mesh_loss = fields.mesh_loss(sim, Np = 50)
+mesh = fields.Mesh(sim, Np = 50)
+mesh_loss = fields.Mesh_loss(sim, Np = 50)
 
 left =  {'direction' : -1, 
          'zmatch' : 0, 
@@ -58,8 +56,8 @@ print('Number of eigenmodes: %d'%(len(sim.ix_n)))
 for scenario in [left, right]:
     zmatch =    scenario['zmatch']
     for ix_n in sim.ix_n:
-        cavity = fields.cavity(sim, sim.ix_pairs_n[ix_n][0], sim.ix_pairs_n[ix_n][1])
-        cav_proj =  fields.projectors(mesh)
+        cavity = fields.Cavity(sim, sim.ix_pairs_n[ix_n][0], sim.ix_pairs_n[ix_n][1])
+        cav_proj =  fields.Projectors(mesh)
         cav_proj.interpolate_at_boundary(cavity, mesh, zmatch)
         scenario['ev'].append(cav_proj)
 
@@ -72,9 +70,9 @@ for scenario in [left, right]:
     zmatch = scenario['zmatch']
     direction = scenario['direction']
     for ix_n in sim.ix_n:
-        cavity_n = fields.cavity(
+        cavity_n = fields.Cavity(
             sim, sim.ix_pairs_n[ix_n][0], sim.ix_pairs_n[ix_n][1])
-        cav_proj = fields.projectors(mesh_loss)
+        cav_proj = fields.Projectors(mesh_loss)
         cav_proj.interpolate_at_boundary(cavity_n, mesh_loss, zmatch)
         argument = abs(cav_proj.Hx)**2 + abs(cav_proj.Hy)**2
         WF[ix_n, ix_n] = trapz(trapz(argument, mesh_loss.xi), mesh_loss.yi)
@@ -95,8 +93,8 @@ for f in np.linspace(1e8, 6e9, 5):
         # compute fields:
         v_p = []
         for ix_p in sim.ix_p:
-            pipe_p  = fields.pipe(sim, ix_p, direction)
-            pipe_proj_p = fields.projectors(mesh)
+            pipe_p  = fields.Pipe(sim, ix_p, direction)
+            pipe_proj_p = fields.Projectors(mesh)
             pipe_proj_p.interpolate_at_boundary(pipe_p, mesh, zmatch)
             v_p.append(pipe_proj_p)    
             
@@ -111,11 +109,11 @@ for f in np.linspace(1e8, 6e9, 5):
         Z = np.zeros((1, sim.index_max_p), dtype = complex)
         
         # point charge at the center
-        source = fields.source(sim, beam) 
-        source_cav = fields.source_cav(sim, beam)
-        source_proj_cav = fields.projectors(mesh)
+        source = fields.Source(sim, beam)
+        source_cav = fields.Source_cav(sim, beam)
+        source_proj_cav = fields.Projectors(mesh)
         source_proj_cav.interpolate_at_boundary(source_cav, mesh, zmatch)         
-        source_proj = fields.projectors(mesh)
+        source_proj = fields.Projectors(mesh)
         source_proj.interpolate_at_boundary(source, mesh, zmatch)      
         
         # ring of charge
@@ -180,7 +178,7 @@ for f in np.linspace(1e8, 6e9, 5):
 
         
         for ix_p in sim.ix_p:
-            pipe_p  = fields.pipe(sim, ix_p, direction)
+            pipe_p  = fields.Pipe(sim, ix_p, direction)
             pipe_proj_p = v_p[ix_p]
             grad_x_p, grad_y_p = pipe_proj_p.Hx, pipe_proj_p.Hy
             E[ix_p, 0] = simps(simps((source_proj.Hx)*grad_x_p + 
@@ -198,13 +196,13 @@ for f in np.linspace(1e8, 6e9, 5):
                 (np.sqrt(np.pi) * pipe_p.alpha_p * pipe_p.jalpha_p * (source.alpha_b - direction * pipe_p.alpha_p_tilde)) * \
                 np.exp(1j * zmatch * (source.alpha_b - 0*(direction+1)/2 * pipe_p.alpha_p_tilde) / sim.b)
             for ix_q in sim.ix_p:
-                pipe_q  = fields.pipe(sim, ix_q, direction)
+                pipe_q  = fields.Pipe(sim, ix_q, direction)
                 pipe_proj_q = v_p[ix_q]
                 grad_x_q, grad_y_q = pipe_proj_q.Hx, pipe_proj_q.Hy
                 A[ix_p, ix_q] = simps(simps((pipe_proj_p.Hx)*grad_x_q + 
                                             (pipe_proj_p.Hy)*grad_y_q, mesh.xi,'first'), mesh.yi,'first')
             for ix_n in sim.ix_n:
-                cavity = fields.cavity(sim, sim.ix_pairs_n[ix_n][0], sim.ix_pairs_n[ix_n][1])
+                cavity = fields.Cavity(sim, sim.ix_pairs_n[ix_n][0], sim.ix_pairs_n[ix_n][1])
                 cav_proj = scenario['ev'][ix_n]
                 grad_x, grad_y = pipe_proj_p.Hx, pipe_proj_p.Hy
                 B[ix_p, ix_n] = simps(simps(cav_proj.Hx * grad_x + cav_proj.Hy * grad_y, mesh.xi), mesh.yi)
@@ -232,7 +230,7 @@ for f in np.linspace(1e8, 6e9, 5):
     ID = np.zeros((sim.index_max_n,sim.index_max_n), dtype = complex)
     W = np.zeros((sim.index_max_n,sim.index_max_n), dtype = complex)
     for ix_n in sim.ix_n:
-        cavity = fields.cavity(sim, sim.ix_pairs_n[ix_n][0], sim.ix_pairs_n[ix_n][1])
+        cavity = fields.Cavity(sim, sim.ix_pairs_n[ix_n][0], sim.ix_pairs_n[ix_n][1])
         MI[ix_n, ix_n] =  (1j * cavity.k_0) / (cavity.Z0 * (cavity.k_0**2 - cavity.k_ps**2 ))
         ID[ix_n, ix_n] =  1. + 0j
         MV[ix_n, ix_n] =  -1j * (cavity.k_ps) * cavity.Z0 / (cavity.k_0)        
@@ -275,8 +273,8 @@ right['S'] + np.linalg.inv(right['A']) @ right['B'] @ II
     # Impedance 
     Zcav = np.zeros((1, sim.index_max_n), dtype = complex)
     for ix_n in sim.ix_n:
-        cavity = fields.cavity(sim, sim.ix_pairs_n[ix_n][0], sim.ix_pairs_n[ix_n][1])
-        cav_proj_s = fields.projectors(mesh)
+        cavity = fields.Cavity(sim, sim.ix_pairs_n[ix_n][0], sim.ix_pairs_n[ix_n][1])
+        cav_proj_s = fields.Projectors(mesh)
         cav_proj_s.interpolate_on_axis(cavity, mesh, source.rb, 0)
         Zcav[0,ix_n] = - simps(cav_proj_s.Ez * np.exp(1j * source.alpha_b / sim.b * mesh.Z), mesh.Z,'first')
         
@@ -312,7 +310,7 @@ plt.tight_layout()
 plt.savefig(saveDir+'NMM_fields_cavity_b0.05_L0.01.png')
 import pandas as pd
 pd.DataFrame(index = fout, data = {'Re': Zout.real, 'Im': Zout.imag}).to_csv(saveDir+'NMM_fields_cavity_b0.05_L0.01.txt')
-
+plt.show()
 #%% Ez
 # rb = 1e-4
 # Ez_r = 0

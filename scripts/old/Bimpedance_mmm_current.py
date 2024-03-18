@@ -100,7 +100,7 @@ for f in range1:
         E = np.zeros((sim.index_max_p, 1), dtype=complex)
         Z = np.zeros((1, sim.index_max_p), dtype=complex)
 
-        source = fields.source(sim, beam)          
+        source = fields.Source(sim, beam)
         source_proj = fields.projectors(mesh)
         source_proj.interpolate_at_boundary(source, mesh, zmatch)
 
