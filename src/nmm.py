@@ -27,7 +27,7 @@ class Mesh:
         self.Z = np.linspace(0, geometry.L, self.Np, endpoint=True)
 
 
-class mesh3D:
+class Mesh3D:
 
     def __init__(self, sim, Np=10):  # constructor
 
