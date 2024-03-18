@@ -36,7 +36,7 @@ for _max_num_cavity_modes in np.arange(1, max_num_cavity_modes):
     )
     mode.datadir = "./cst_large_set/"
 
-    sim = nmm.simulation_CST(
+    sim = nmm.Simulation(
         mode=mode,
         geometry=geometry,
         materials=materials,

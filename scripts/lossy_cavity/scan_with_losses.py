@@ -27,7 +27,7 @@ for sigma_ in [1e3]:
     R_max = P_max * 2
     mode = nmm.Mode(is_analytical=True, index_max_p=P_max, max_mode_number=None,
                     split_rs=True, index_max_r=R_max, index_max_s=S_max)
-    sim = nmm.simulation_CST(
+    sim = nmm.Simulation(
         mode=mode,
         geometry=geometry,
         materials=materials,
@@ -109,4 +109,4 @@ for sigma in [1e3]:
     plt.suptitle(f'$\sigma$={sigma:.0e} S/m')
     plt.tight_layout()
     # plt.savefig(saveDir+f'losses_cavity_sigma{sigma}_b0.005_L0.02.png')
-plt.show()
+#plt.show()

@@ -27,7 +27,7 @@ mode = nmm.Mode(
     max_mode_number=max_num_cavity_modes,
     split_rs=False,
 )
-sim = nmm.simulation_CST(
+sim = nmm.Simulation(
     mode=mode,
     geometry=geometry,
     materials=materials,

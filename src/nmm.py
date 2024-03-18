@@ -128,70 +128,7 @@ class Mode:
                 self.datadir = './cst/'
 
 
-class simulation:
-
-    def __init__(self, frequency=2e9, index_max_p=3, index_max_r=3, index_max_s=3, integration='indirect',
-                 geometry=Geometry,
-                 materials=Materials, beam=Beam, mesh=Mesh):  # constructor
-
-        import itertools
-
-        self.f = frequency
-        self.index_max_p = index_max_p
-        self.index_max_s = index_max_s
-        self.index_max_r = index_max_r
-        self.ix_p = np.arange(self.index_max_p)
-        self.ix_s = np.arange(self.index_max_s)
-        self.ix_r = np.arange(self.index_max_r)
-        self.b = geometry.b
-        self.t = geometry.t
-        self.L = geometry.L
-        self.d = geometry.d
-        self.geometry = geometry
-        self.ix_pairs_n = list(itertools.product(
-            np.arange(self.index_max_r), np.arange(self.index_max_s)))
-        self.index_max_n = len(self.ix_pairs_n)
-        self.ix_n = np.arange(self.index_max_n)
-        self.rb = self.b / 10
-        self.sigma = materials.sigma
-        self.integration = integration
-        self.materials = materials
-        self.beam = beam
-        self.mesh = mesh
-        self.Np = mesh.Np
-
-
-# class simulation_CST:
-#
-#     def __init__(self, frequency = 2e9, index_max_p = 3, index_max_n = 3, integration = 'indirect', geometry=geometry,
-#                  materials=materials, beam = beam, mesh = mesh, datadir = './CST', list_modes = []):
-#
-#         self.f = frequency
-#         self.index_max_p = index_max_p
-#         self.ix_p = np.arange(self.index_max_p)
-#         if len(list_modes) > 0:
-#             self.index_max_n = len(list_modes)
-#             self.ix_n = np.arange(self.index_max_n)
-#             self.x_n = list_modes
-#         else:
-#             self.index_max_n = index_max_n
-#             self.ix_n = np.arange(self.index_max_n)
-#             self.x_n = self.ix_n + 1
-#         self.ix_n = np.arange(self.index_max_n)
-#         self.b = geometry.b
-#         self.t = geometry.t
-#         self.L = geometry.L
-#         self.d = geometry.d
-#         self.rb = self.b/10
-#         self.sigma = materials.sigma
-#         self.integration = integration
-#         self.materials = materials
-#         self.beam = beam
-#         self.mesh = mesh
-#         self.Np = mesh.Np
-#         self.datadir = datadir
-
-class simulation_CST:
+class Simulation:
 
     def __init__(self, frequency=2e9, mode=Mode, integration='indirect', geometry=Geometry,
                  materials=Materials, beam=Beam, mesh=Mesh):

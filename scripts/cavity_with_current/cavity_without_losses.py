@@ -31,7 +31,7 @@ mode = nmm.Mode(
     index_max_r=R_max,
     index_max_s=S_max,
 )
-sim = nmm.simulation_CST(
+sim = nmm.Simulation(
     mode=mode,
     geometry=geometry,
     materials=materials,
@@ -277,4 +277,4 @@ plt.legend(loc=2)
 plt.tight_layout()
 plt.savefig(saveDir + "NMM_current_cavity_b0.05_L0.01_with_Im_indirect.png")
 
-plt.show()
+#plt.show()
