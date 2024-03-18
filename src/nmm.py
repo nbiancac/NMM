@@ -66,6 +66,10 @@ class Pillbox:
         self.L = length
         self.d = self.t + self.b
 
+    def generate_field(self, sim, mode_index):
+        from fields import cavity
+        return cavity(sim, sim.mode.ix_pairs_n[mode_index][0], sim.mode.ix_pairs_n[mode_index][1])
+
 
 class CST_object:
 
@@ -131,6 +135,7 @@ class Simulation:
         self.ix_p = np.arange(self.index_max_p)
         self.index_max_n = mode.index_max_n
         self.ix_n = mode.ix_n
+        self.geometry = geometry
         self.b = geometry.b
         self.t = geometry.t
         self.L = geometry.L
@@ -176,9 +181,7 @@ class Simulation:
             for ix_n in self.ix_n:
                 print(f"\r >> {scenario['str']}, mode number {ix_n + 1}/{len(self.ix_n)}", end="")
                 if self.mode.is_analytical:
-                    # cavity_n = sim.geometry.generate_mode_field(mode)
-                    cavity_n = cavity(
-                        self, self.mode.ix_pairs_n[ix_n][0], self.mode.ix_pairs_n[ix_n][1])
+                    cavity_n = self.geometry.generate_field(self, ix_n)
                     cav_proj = projectors(self.mesh)
                     cav_proj.interpolate_at_boundary(cavity_n, self.mesh, zmatch)
                 else:
@@ -297,9 +300,7 @@ class Simulation:
         for ix_n in self.ix_n:
 
             if self.mode.is_analytical:
-                # cavity_n = sim.geometry.generate_mode_field(mode)
-                cavity_ = cavity(
-                    self, self.mode.ix_pairs_n[ix_n][0], self.mode.ix_pairs_n[ix_n][1])
+                cavity_ = self.geometry.generate_field(self, ix_n)
                 cav_proj_s = projectors(self.mesh)
                 cav_proj_s.interpolate_on_axis(cavity_, self.mesh, source.rb, 0)
             else:
@@ -370,8 +371,7 @@ class Simulation:
         for ix_n in self.ix_n:
 
             if self.mode.is_analytical:
-                cavity_ = cavity(
-                    self, self.mode.ix_pairs_n[ix_n][0], self.mode.ix_pairs_n[ix_n][1])
+                cavity_ = self.geometry.generate_field(self, ix_n)
                 cav_proj_s = projectors(self.mesh)
                 if self.integration == 'indirect':
                     dir_int = 0
