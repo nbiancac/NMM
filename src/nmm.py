@@ -6,8 +6,8 @@ Created on Mon Nov 20 10:53:17 2023
 @author: nbiancac
 """
 import numpy as np
-from math_utils import cross_prod_t
-from fields import pipe, cavity_CST, cavity_project_on_axis, cavity_project, source_ring_top, source_ring_bottom, cavity
+from math_utils import cross_prod_t, cart2polar
+from fields import Pipe, cavity_CST, cavity_project_on_axis, cavity_project, source_ring_top, source_ring_bottom, cavity
 from projectors import projectors
 
 
@@ -20,9 +20,6 @@ class Mesh:
         self.yi = self.xi
         self.Xi, self.Yi = np.meshgrid(self.xi, self.yi)
         Wi = self.Xi + 1j * self.Yi
-
-        def cart2polar(w): return abs(w), np.angle(w)
-
         self.R, self.PHI = cart2polar(Wi)
         self.Z = np.linspace(0, geometry.L, self.Np, endpoint=True)
 
@@ -39,11 +36,7 @@ class Mesh3D:
         self.dy = np.diff(self.yi)[0]
         self.dz = np.diff(self.zi)[0]
         self.Xi, self.Yi, self.Z = np.meshgrid(self.xi, self.yi, self.zi)
-
         Wi = self.Xi + 1j * self.Yi
-
-        def cart2polar(w): return (abs(w), np.angle(w))
-
         self.R, self.PHI = cart2polar(Wi)
 
 
@@ -66,30 +59,30 @@ class Geometry:
 
 class Pillbox:
 
-    def __init__(self, b=5e-2, t=5e-2, L=1e-2):  # constructor
+    def __init__(self, radius=5e-2, thickness=5e-2, length=1e-2):  # constructor
 
-        self.b = b
-        self.t = t
-        self.L = L
+        self.b = radius
+        self.t = thickness
+        self.L = length
         self.d = self.t + self.b
 
 
 class CST_object:
 
-    def __init__(self, b=5e-2, t=0, length=1e-2):  # constructor
+    def __init__(self, radius=5e-2, thickness=0, length=1e-2):  # constructor
 
-        self.b = b
-        self.t = t
+        self.b = radius
+        self.t = thickness
         self.L = length
         self.d = self.t + self.b
 
 
 class Beam:
 
-    def __init__(self, beta=0.9999, Q=1):  # constructor
+    def __init__(self, beta=0.9999, charge=1):  # constructor
         self.beta = beta
         self.gamma = 1. / np.sqrt(1 - self.beta ** 2)
-        self.Q = Q
+        self.charge = charge
 
 
 class Mode:
@@ -183,11 +176,13 @@ class Simulation:
             for ix_n in self.ix_n:
                 print(f"\r >> {scenario['str']}, mode number {ix_n + 1}/{len(self.ix_n)}", end="")
                 if self.mode.is_analytical:
+                    # cavity_n = sim.geometry.generate_mode_field(mode)
                     cavity_n = cavity(
                         self, self.mode.ix_pairs_n[ix_n][0], self.mode.ix_pairs_n[ix_n][1])
                     cav_proj = projectors(self.mesh)
                     cav_proj.interpolate_at_boundary(cavity_n, self.mesh, zmatch)
                 else:
+                    # cavity_n = sim.geometry.load_mode_field(mode)
                     cav_proj = cavity_project(self.mode.x_n[ix_n], self.mesh, zmatch, radius_CST=5, stepsize_CST=0.1,
                                               datadir=self.datadir)
                 scenario['ev'].append(cav_proj)
@@ -198,7 +193,7 @@ class Simulation:
             print("\n")
             for ix_p in self.ix_p:
                 print(f"\r >> {scenario['str']}, pipe number {ix_p + 1}/{len(self.ix_p)}", end="")
-                pipe_p = pipe(self, ix_p, direction)
+                pipe_p = Pipe(self, ix_p, direction)
                 pipe_proj_p = projectors(self.mesh)
                 pipe_proj_p.interpolate_at_boundary(pipe_p, self.mesh, zmatch)
                 scenario['vp'].append(pipe_proj_p)
@@ -208,7 +203,7 @@ class Simulation:
         A0 = np.zeros((self.index_max_p, self.index_max_p), dtype=complex)
         M_alpha_p_tilde = np.zeros((self.index_max_p, self.index_max_p), dtype=complex)
         for ix_p in self.ix_p:
-            pipe_p = pipe(self, ix_p, direction)
+            pipe_p = Pipe(self, ix_p, direction)
             pipe_proj_p = scenario['vp'][ix_p]
             grad_x_p, grad_y_p = pipe_proj_p.Hx, pipe_proj_p.Hy
             M_alpha_p_tilde[ix_p, ix_p] = pipe_p.alpha_p_tilde
@@ -264,7 +259,7 @@ class Simulation:
             M_alpha_p_tilde = np.zeros((self.index_max_p, self.index_max_p), dtype=complex)
 
             for ix_p in self.ix_p:
-                pipe_p = pipe(self, ix_p, direction)
+                pipe_p = Pipe(self, ix_p, direction)
                 pipe_proj_p = scenario['vp'][ix_p]
                 from scipy.special import jn
                 # if np.imag(pipe_p.alpha_p_tilde ) < 0:
@@ -302,23 +297,28 @@ class Simulation:
         for ix_n in self.ix_n:
 
             if self.mode.is_analytical:
+                # cavity_n = sim.geometry.generate_mode_field(mode)
                 cavity_ = cavity(
                     self, self.mode.ix_pairs_n[ix_n][0], self.mode.ix_pairs_n[ix_n][1])
                 cav_proj_s = projectors(self.mesh)
                 cav_proj_s.interpolate_on_axis(cavity_, self.mesh, source.rb, 0)
             else:
+                # cavity_n = sim.geometry.load_mode_field(mode)
                 cavity_ = cavity_CST(self, mode_num=self.mode.x_n[ix_n], datadir=self.datadir)
+                # cavity_n = sim.geometry.load_mode_field(mode)
                 cav_proj_s = cavity_project_on_axis(self.mode.x_n[ix_n], self.mesh, datadir=self.datadir)
 
-            self.F[ix_n, 0] = -(cavity_.k_rs) / (cavity_.k_0 ** 2 - cavity_.k_rs ** 2) * \
-                              trapz((cav_proj_s.Ez) * self.beam.Q * np.exp(-1j * source.alpha_b * self.mesh.Z / self.b),
-                                    self.mesh.Z)
+            self.F[ix_n, 0] = -cavity_.k_rs / (cavity_.k_0 ** 2 - cavity_.k_rs ** 2) * \
+                              trapz(
+                                  cav_proj_s.Ez * self.beam.charge * np.exp(-1j * source.alpha_b * self.mesh.Z / self.b),
+                                  self.mesh.Z)
 
             self.G[ix_n, 0] = 1j * (cavity_.k_0 * cavity_.Z0) / (cavity_.k_0 ** 2 - cavity_.k_rs ** 2) * \
-                              trapz((cav_proj_s.Ez) * self.beam.Q * np.exp(-1j * source.alpha_b * self.mesh.Z / self.b),
-                                    self.mesh.Z)
+                              trapz(
+                                  cav_proj_s.Ez * self.beam.charge * np.exp(-1j * source.alpha_b * self.mesh.Z / self.b),
+                                  self.mesh.Z)
 
-            self.R[ix_n, 0] = -trapz(cav_proj_s.Fz * self.beam.Q * np.exp(-1j * source.alpha_b * self.mesh.Z / self.b),
+            self.R[ix_n, 0] = -trapz(cav_proj_s.Fz * self.beam.charge * np.exp(-1j * source.alpha_b * self.mesh.Z / self.b),
                                      self.mesh.Z)
 
             self.MI[ix_n, ix_n] = (1j * cavity_.k_0) / (cavity_.Z0 * (cavity_.k_0 ** 2 - cavity_.k_rs ** 2))
@@ -386,7 +386,7 @@ class Simulation:
             Zcav_sol[0, ix_n] = - trapz(cav_proj_s.Ez * np.exp(1j * source.alpha_b * self.mesh.Z / self.b), self.mesh.Z)
             Zcav_irr[0, ix_n] = - trapz(cav_proj_s.Fz * np.exp(1j * source.alpha_b * self.mesh.Z / self.b), self.mesh.Z)
 
-        self.Z = 1. / self.beam.Q * (Zcav_sol @ coeffs['cavity_sol'] + \
+        self.Z = 1. / self.beam.charge * (Zcav_sol @ coeffs['cavity_sol'] + \
                                      Zcav_irr @ coeffs['cavity_irr'] + \
                                      (dir_int) * (self.left['Z'] @ coeffs['left']) + \
                                      (dir_int) * (self.right['Z'] @ coeffs['right']))

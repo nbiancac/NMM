@@ -140,7 +140,7 @@ class Source:
         omega0 = 2 * np.pi * f0
         v = beta * c
         alpha_b = b * omega0 / v
-        Q = beam.Q
+        Q = beam.charge
         x = alpha_b / gamma
 
         F0 = lambda r, phi, z: kn(0, r * alpha_b / b / gamma) - i0(
@@ -214,7 +214,7 @@ class Source_ring_top:
         omega0 = 2 * np.pi * f0
         v = beta * c
         alpha_b = b * omega0 / v
-        Q = beam.Q
+        Q = beam.charge
         x = alpha_b / gamma
         rb = 0.003
         s = rb * alpha_b / b / gamma
@@ -292,7 +292,7 @@ class Source_ring_bottom:
         omega0 = 2 * np.pi * f0
         v = beta * c
         alpha_b = b * omega0 / v
-        Q = beam.Q
+        Q = beam.charge
         x = alpha_b / gamma
         rb = 0.003
         s = rb * alpha_b / b / gamma
@@ -366,7 +366,7 @@ class Source_cylinder_bottom:
         omega0 = 2 * np.pi * f0
         v = beta * c
         alpha_b = b * omega0 / v
-        Q = beam.Q
+        Q = beam.charge
         x = alpha_b / gamma
         rb = 0.003
         s = rb * alpha_b / b / gamma
@@ -455,7 +455,7 @@ class Source_cylinder_top:
         omega0 = 2 * np.pi * f0
         v = beta * c
         alpha_b = b * omega0 / v
-        Q = beam.Q
+        Q = beam.charge
         # x = alpha_b / gamma
         rb = 0.003
         # s = rb * alpha_b / b / gamma
@@ -535,7 +535,7 @@ class Source_gaussian:
         omega0 = 2 * np.pi * f0
         v = beta * c
         alpha_b = b * omega0 / v
-        Q = beam.Q
+        Q = beam.charge
         # x = alpha_b / gamma
         rb = 0.003
         # s = rb * alpha_b / b / gamma
@@ -630,7 +630,7 @@ class Source_cav:
         omega0 = 2 * np.pi * f0
         v = beta * c
         alpha_b = b * omega0 / v
-        Q = beam.Q
+        Q = beam.charge
         x = alpha_b / gamma
 
         F0 = lambda r, phi, z: kn(0, r * alpha_b / b / gamma) - i0(

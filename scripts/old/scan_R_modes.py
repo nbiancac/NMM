@@ -20,7 +20,7 @@ R_vec = np.arange(1, 60, 2, dtype=int)
 Np = 50
 
 beam = fields.Beam(beta=0.9999)
-beam.Q = 1
+beam.charge = 1
 
 Z_conv = [];
 for iR in R_vec:
@@ -71,7 +71,7 @@ for iR in R_vec:
                 # compute fields:
                 v_p = []
                 for ix_p in sim.ix_p:
-                    pipe_p = fields.pipe(sim, ix_p, direction)
+                    pipe_p = fields.Pipe(sim, ix_p, direction)
                     pipe_proj_p = fields.projectors(mesh)
                     pipe_proj_p.interpolate_at_boundary(pipe_p, mesh, zmatch)
                     v_p.append(pipe_proj_p)
@@ -99,7 +99,7 @@ for iR in R_vec:
 
                 # magnetic matching
                 for ix_p in sim.ix_p:
-                    pipe_p = fields.pipe(sim, ix_p, direction)
+                    pipe_p = fields.Pipe(sim, ix_p, direction)
                     pipe_proj_p = v_p[ix_p]
                     from scipy.special import jn
                     Z[0, ix_p] = - direction * 1j * sim.b * jn(0, source.rb * pipe_p.alpha_p / sim.b)  / \
@@ -109,7 +109,7 @@ for iR in R_vec:
                     E[ix_p, 0] = trapz(trapz(source_proj.Hx*grad_x_p + source_proj.Hy*grad_y_p, mesh.xi), mesh.yi)
 
                     for ix_q in sim.ix_p:
-                        pipe_q = fields.pipe(sim, ix_q, direction)
+                        pipe_q = fields.Pipe(sim, ix_q, direction)
                         pipe_proj_q = v_p[ix_q]
                         grad_x_q, grad_y_q = pipe_proj_q.Hx, pipe_proj_q.Hy
                         A[ix_p, ix_q] = trapz(trapz((pipe_proj_p.Hx)*grad_x_q + (pipe_proj_p.Hy)*grad_y_q, mesh.xi), mesh.yi)
@@ -150,12 +150,12 @@ for iR in R_vec:
                 cav_proj_s = fields.projectors(mesh)
                 cav_proj_s.interpolate_on_axis(cavity, mesh, source.rb, 0)
                 F[ix_n, 0] = -(cavity.k_rs) / (cavity.k_0**2 - cavity.k_rs**2) * \
-                    trapz((cav_proj_s.Ez)  * beam.Q * np.exp(-1j * source.alpha_b * mesh.Z / sim.b), mesh.Z)
+                    trapz((cav_proj_s.Ez) * beam.charge * np.exp(-1j * source.alpha_b * mesh.Z / sim.b), mesh.Z)
                 
                 G[ix_n, 0] = 1j*(cavity.k_0 * cavity.Z0) / (cavity.k_0**2 - cavity.k_rs**2) * \
-                    trapz((cav_proj_s.Ez) * beam.Q * np.exp(-1j * source.alpha_b * mesh.Z / sim.b), mesh.Z)
+                    trapz((cav_proj_s.Ez) * beam.charge * np.exp(-1j * source.alpha_b * mesh.Z / sim.b), mesh.Z)
                 
-                R[ix_n, 0] = -trapz(cav_proj_s.Fz * beam.Q * np.exp(-1j * source.alpha_b * mesh.Z / sim.b) , mesh.Z)
+                R[ix_n, 0] = -trapz(cav_proj_s.Fz * beam.charge * np.exp(-1j * source.alpha_b * mesh.Z / sim.b), mesh.Z)
                 
                 MI[ix_n, ix_n] = (1j * cavity.k_0) / (cavity.Z0 * (cavity.k_0**2 - cavity.k_rs**2))
                 MV[ix_n, ix_n] = -1j * cavity.k_rs * cavity.Z0 / cavity.k_0
@@ -230,10 +230,10 @@ for iR in R_vec:
                 Zcav_irr[0, ix_n] = - trapz(cav_proj_s.Fz * np.exp(1j * source.alpha_b * mesh.Z / sim.b), mesh.Z)
             
 
-            out = 1./beam.Q * (Zcav_sol @ coeffs['cavity_sol'] + \
-                               Zcav_irr @ coeffs['cavity_irr'] + \
-                               (left['Z'] @ coeffs['left']) + \
-                               (right['Z'] @ coeffs['right']))
+            out = 1. / beam.charge * (Zcav_sol @ coeffs['cavity_sol'] + \
+                                      Zcav_irr @ coeffs['cavity_irr'] + \
+                                      (left['Z'] @ coeffs['left']) + \
+                                      (right['Z'] @ coeffs['right']))
             
             Zout.append(out)
             fout.append(f)

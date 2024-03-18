@@ -83,7 +83,7 @@ mode = nmm.Mode(
     list_modes=list_selected_modes,
 )
 mode.datadir = "./cst_large_set/"
-sim = nmm.simulation_CST(
+sim = nmm.Simulation(
     mode=mode,
     geometry=geometry,
     materials=materials,
@@ -116,7 +116,7 @@ mode = nmm.Mode(
     split_rs=False,
 )
 mode.datadir = "./cst_large_set/"
-sim = nmm.simulation_CST(
+sim = nmm.Simulation(
     mode=mode,
     geometry=geometry,
     materials=materials,

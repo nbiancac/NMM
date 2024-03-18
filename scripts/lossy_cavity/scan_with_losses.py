@@ -19,7 +19,7 @@ saveDir = './'
 for sigma_ in [1e3]:
 
     beam = nmm.Beam()  # initialize beam parameters
-    geometry = nmm.Pillbox(L=0.01)
+    geometry = nmm.Pillbox(length=0.01)
     materials = nmm.Materials(sigma=sigma_)
     mesh = nmm.Mesh(geometry, Np=50)
     P_max = 10

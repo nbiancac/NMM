@@ -6,6 +6,7 @@ Created on Mon Nov 20 10:49:07 2023
 @author: nbiancac
 """
 
+
 def cross_z(x, y):
     '''
     Cross product of transverse field with components (x,y) with z. 
@@ -31,8 +32,13 @@ def cross_prod_t(Ax, Ay, Az, Bx, By, Bz):
     -------
     z component
     '''
-    return Ax*By - Ay * Bx
+    return Ax * By - Ay * Bx
 
 
 def epsilon_s(s):
     return 1 if s == 0 else 2
+
+
+def cart2polar(w):
+    import numpy as np
+    return abs(w), np.angle(w)

@@ -17,7 +17,7 @@ with path_for_scripts.Context():
 saveDir = "./"
 
 beam = nmm.Beam()
-geometry = nmm.Pillbox(L=0.01)
+geometry = nmm.Pillbox(length=0.01)
 materials = nmm.Materials(sigma=0)
 mesh = nmm.Mesh(geometry, Np=50)
 P_max = 15
