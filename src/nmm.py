@@ -7,7 +7,8 @@ Created on Mon Nov 20 10:53:17 2023
 """
 import numpy as np
 from math_utils import cross_prod_t, cart2polar
-from fields import Pipe, cavity_CST, cavity_project_on_axis, cavity_project, source_ring_top, source_ring_bottom, cavity
+from fields import Pipe, cavity_CST, cavity_project_on_axis, cavity_project_on_side, \
+    cavity_project, source_ring_top, source_ring_bottom, cavity
 from projectors import projectors
 
 
@@ -380,8 +381,12 @@ class Simulation:
                     dir_int = 1
                     cav_proj_s.interpolate_on_axis(cavity_, self.mesh, self.rb, 0)
             else:
-                cav_proj_s = cavity_project_on_axis(self.mode.x_n[ix_n], self.mesh, datadir=self.datadir)
-                dir_int = 1
+                if self.integration == 'indirect':
+                    dir_int = 0
+                    cav_proj_s = cavity_project_on_side(self.mode.x_n[ix_n], self.mesh, datadir=self.datadir)
+                else:
+                    dir_int = 1
+                    cav_proj_s = cavity_project_on_axis(self.mode.x_n[ix_n], self.mesh, datadir=self.datadir)
 
             Zcav_sol[0, ix_n] = - trapz(cav_proj_s.Ez * np.exp(1j * source.alpha_b * self.mesh.Z / self.b), self.mesh.Z)
             Zcav_irr[0, ix_n] = - trapz(cav_proj_s.Fz * np.exp(1j * source.alpha_b * self.mesh.Z / self.b), self.mesh.Z)

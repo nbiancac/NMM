@@ -33,9 +33,9 @@ sim = nmm.Simulation(
     materials=materials,
     beam=beam,
     mesh=mesh,
+    integration='direct',
 )
-
-sim.integration = "direct"
+print(sim.integration)
 sim.preload_matrixes()
 
 impedance = []
