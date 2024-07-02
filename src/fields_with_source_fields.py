@@ -119,7 +119,7 @@ class Beam:
         self.beta = beta
         self.gamma = 1.0 / np.sqrt(1 - self.beta**2)
         self.Q = 1.0
-
+        self.charge = self.Q
 
 class Source:
     """

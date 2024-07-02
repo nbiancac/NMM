@@ -20,9 +20,9 @@ beam = nmm.Beam()
 geometry = nmm.Pillbox(length=0.01)
 materials = nmm.Materials(sigma=0)
 mesh = nmm.Mesh(geometry, Np=50)
-P_max = 15
-S_max = 5
-R_max = 25
+P_max = 10
+S_max = 35
+R_max = 35
 mode = nmm.Mode(
     is_analytical=True,
     index_max_p=P_max,
@@ -43,7 +43,7 @@ sim.integration = "direct"
 Zout = []
 fout = []
 sim.preload_matrixes()
-for f in np.linspace(1e8, 6e9, 55, endpoint=True)[:]:
+for f in np.linspace(1e0, 6e9, 500, endpoint=True)[:]:
     print(f"frequency {f/1e9} GHz")
     sim.f = f
     sim.compute_impedance()
@@ -134,7 +134,9 @@ df = pd.read_csv(
 plt.plot(df.index / 1e9, df.Re.values, "ob", label="Re, NMM (source fields)")
 plt.plot(df.index / 1e9, df.Im.values, "om", label="Im, NMM (source fields)")
 
-savestr = "NMM_sigma0_L0.01_t0.05_b0.05_rb0.005_P15_R25_S5_direct.csv"
+# savestr = "NMM_sigma0_L0.01_t0.05_b0.05_rb0.005_P15_R25_S5_direct.csv"
+savestr = f"NMM_sigma{sim.materials.sigma}_L{sim.L}_t{sim.t}_b{sim.b}_rb{sim.rb}_P{P_max}_R{R_max}_S{S_max}_{sim.integration}.csv"
+print(savestr)
 df = pd.read_csv(saveDir + savestr, skiprows=0, index_col=0)
 
 # #plt.plot(fout/1e9,-hilbert(df.Re.values).imag)
@@ -209,6 +211,7 @@ plt.plot(df.index / 1e9, df.Re.values, "ob", label="Re, NMM (source fields)")
 plt.plot(df.index / 1e9, df.Im.values, "om", label="Im, NMM (source fields)")
 
 savestr = "NMM_sigma0_L0.01_t0.05_b0.05_rb0.005_P15_R25_S5_direct.csv"
+savestr = f"NMM_sigma{sim.materials.sigma}_L{sim.L}_t{sim.t}_b{sim.b}_rb{sim.rb}_P{P_max}_R{R_max}_S{S_max}_{sim.integration}.csv"
 df = pd.read_csv(saveDir + savestr, skiprows=0, index_col=0)
 
 # plt.plot(fout/1e9,-hilbert(df.Re.values).imag)
@@ -277,4 +280,4 @@ plt.legend(loc=2)
 plt.tight_layout()
 plt.savefig(saveDir + "NMM_current_cavity_b0.05_L0.01_with_Im_indirect.png")
 
-#plt.show()
+plt.show()
